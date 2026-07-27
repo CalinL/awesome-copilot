@@ -3,7 +3,7 @@ title: 'Building Custom Agents'
 description: 'Learn how to create specialized GitHub Copilot agents with custom personas, tool integrations, and domain expertise.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-09
+lastUpdated: 2026-07-27
 estimatedReadingTime: '10 minutes'
 tags:
   - agents
@@ -254,6 +254,7 @@ The agent can then query your database, analyze query plans, and suggest optimiz
 
 | Scenario | Recommended Model |
 |----------|-------------------|
+| Highest-quality output, extended reasoning | Claude Opus 5 *(v1.0.75+)* |
 | Most demanding reasoning, security review | Claude Sonnet 5 *(v1.0.67+)* |
 | Complex reasoning, analysis | Claude Sonnet 4 |
 | Code generation, tool-driven agentic work | GPT-5.6 *(v1.0.70+)* |
@@ -261,6 +262,8 @@ The agent can then query your database, analyze query plans, and suggest optimiz
 | Code-specialized tasks, large context | kimi-k2.7-code *(v1.0.68+)* |
 | Quick analysis, simple tasks | Claude Haiku or GPT-4.1-mini |
 | Large codebase understanding | Models with larger context windows |
+
+> **Tip — Plan mode model *(v1.0.74+)***: Use `/model plan` (or `/model --plan`) to assign a *separate* model specifically for plan mode. Pass a model ID to set it, `off` to clear it, or no argument to open the picker. When you leave plan mode the session reverts to the regular session model. This lets you use a lightweight model for fast planning passes while reserving a more capable model for implementation turns.
 
 ### Organizing Agents in Your Repository
 
