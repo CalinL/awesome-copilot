@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-07-28
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -172,6 +172,8 @@ Run parallel subagents for different lenses - correctness, security, code qualit
 Use one subagent to gather facts and another to implement with those facts. This pattern is especially helpful when you want the main thread to stay free of exploratory noise.
 
 The built-in **`/research`** command uses this orchestrator/subagent model automatically (v1.0.40+): it spawns an orchestrator that breaks the topic into research threads, runs them in parallel as subagents, and synthesizes the findings into a structured report. This means you get deeper and more reliable results than a single-turn query provides — without having to set up the multi-agent pattern yourself.
+
+> **Improved subagent delegation (v1.0.76+)**: Subagent delegation has been improved for small tasks and parallel work. The orchestrator now makes better decisions about when to delegate, reducing overhead for lightweight tasks and improving throughput when multiple subagents run in parallel.
 
 ## Repository examples you can inspect
 
