@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-29
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -73,6 +73,12 @@ The `plugin.json` manifest declares what the plugin contains:
   ]
 }
 ```
+
+### Open Plugin Spec v1 Support (v1.0.74+)
+
+In addition to GitHub's `plugin.json` format, Copilot CLI now also accepts **Open Plugin Spec v1** plugin manifests. This open standard lets plugin authors publish a single manifest that works across multiple AI coding tools (GitHub Copilot, Claude Code, and others). If you're building a plugin for cross-tool distribution, you can use an Open Plugin Spec v1 manifest instead of (or alongside) `plugin.json`.
+
+MCP server configuration via a standalone `mcp.json` file is also supported: plugins can place a `mcp.json` at their root to declare MCP server integrations without embedding them in the main manifest.
 
 ## Why Use Plugins?
 
@@ -221,6 +227,38 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+You can also scope `enable`, `disable`, and `remove` operations to a specific component type using `--plugin`, `--mcp`, or `--skill` flags:
+
+```bash
+# Disable just the MCP server component of a plugin
+copilot plugin disable my-plugin --mcp
+
+# Re-enable a specific skill
+copilot plugin enable my-plugin --skill
+```
+
+### Installing and Managing Individual Skills
+
+*(v1.0.72+)* You can install and remove skills independently through the plugins infrastructure — no need to wrap them in a full plugin:
+
+```bash
+# Install a skill from a local folder
+copilot plugins install --skill ./my-skill/
+
+# Install a skill from a URL
+copilot plugins install --skill https://example.com/skill.zip
+
+# Install a skill into the project repository (makes it available to the coding agent)
+copilot plugins install --skill ./my-skill/ --scope project
+
+# Remove an installed skill by name
+copilot plugins remove --skill my-skill
+```
+
+The `--scope project` flag installs the skill into your repository's `.github/skills/` directory, making it available to the Copilot coding agent and everyone on the team working in that repository.
+
+> **Tip**: Use `copilot skill add` for quick one-off installs; use `copilot plugins install --skill` when you want consistent skill management alongside plugins and MCP servers using the same workflow.
 
 ### Loading Plugins from a Local Directory
 
