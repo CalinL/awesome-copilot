@@ -3,7 +3,7 @@ title: 'Using the Copilot Coding Agent'
 description: 'Learn how to use GitHub Copilot coding agent to autonomously work on issues, generate pull requests, and automate development tasks.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-05-13
+lastUpdated: 2026-07-31
 estimatedReadingTime: '12 minutes'
 tags:
   - coding-agent
@@ -365,6 +365,8 @@ copilot --resume
 ```
 
 Since v1.0.47, `--resume` also surfaces **cloud agent sessions that haven't yet pushed any changes** to their branch — useful for connecting to a session early in its run, before it has committed anything.
+
+As of **v1.0.76**, resuming a session **restores its autopilot or plan mode** instead of reverting to interactive mode. This means a session that was running in autopilot mode will continue in autopilot mode after resume, keeping the `task_complete` tool available and avoiding an unexpected mode switch.
 
 ### Why Use Remote Control?
 
