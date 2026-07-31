@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-31
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -649,6 +649,29 @@ echo "Pre-commit checks passed ✅"
 - **Document setup requirements**: If hooks depend on tools being installed (Prettier, ESLint), document this in the README.
 - **Test locally first**: Run hook scripts manually before relying on them in agent sessions.
 - **Layer hooks, don't overload**: Use multiple hook entries for independent checks rather than one monolithic script.
+
+## Enterprise Sandbox Policy Enforcement (v1.0.76+)
+
+Enterprise and organization administrators can enforce a **restrictive sandbox floor** — a minimum sandbox policy that the CLI will always apply, regardless of user preferences. This ensures that sensitive environments are always protected, even if a developer would otherwise lower their sandbox setting.
+
+Key behaviors:
+- Managed settings **tighten but never loosen** the user's sandbox policy
+- The `/sandbox` dialog surfaces the org-configured managed values with **locked fields**, so developers can see exactly what is enforced and why
+- Managed filesystem paths (allow/deny lists) are visible in the sandbox dialog alongside user-configured paths
+
+### MDM-Based Policy Enforcement (v1.0.77+)
+
+On **macOS and Windows**, administrators can deliver sandbox policies via native **MDM (Mobile Device Management)** tools (such as Microsoft Intune or Apple MDM). Once a managed policy is installed on the device, the CLI reads it automatically — no per-project or per-user configuration needed.
+
+This is especially useful in regulated environments where you need to guarantee that the Copilot sandbox policy cannot be overridden by individual users on managed machines.
+
+### Autopilot Approval and Sandbox (v1.0.77+)
+
+When a user grants **unconditional autopilot approval** (approving all tool executions for the session without per-tool confirmation), the sandbox is automatically **disabled for the duration of that session** — provided the user's sandbox bypass policy allows it.
+
+This reflects the intentional trade-off: unconditional autopilot approval is designed for fully trusted, unattended runs where the sandbox would otherwise block tools the user has already trusted. If your organization's managed policy prohibits sandbox bypass, unconditional autopilot approval will not disable the sandbox even if the user requests it.
+
+> **Security note**: Use `PermissionRequest` hooks (see [Auto-Approve Permissions in CI](#auto-approve-permissions-in-ci-with-permissionrequest)) to control permission grants in CI. In interactive developer sessions, rely on the managed sandbox floor to maintain security baselines.
 
 ## Common Questions
 

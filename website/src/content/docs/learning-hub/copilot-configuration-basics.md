@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-31
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -405,6 +405,25 @@ Settings: File → Settings → Tools → GitHub Copilot
 - Customize keyboard shortcuts
 
 ### GitHub Copilot CLI
+
+#### Authentication
+
+Run `copilot login` to authenticate with GitHub. As of **v1.0.77**, the default login flow on **local interactive terminals** is browser-based (OAuth web flow) — a browser window opens and you approve access without copying a device code. On remote or headless terminals (SSH sessions, CI), the device code flow remains the default.
+
+You can force a specific flow with flags:
+
+```bash
+copilot login --web-flow      # always open a browser window
+copilot login --device-code   # always use device code (paste into browser)
+```
+
+From inside a running session, the interactive `/login` command lets you pick the flow interactively:
+
+```
+/login
+```
+
+#### Configuration file
 
 Configuration file: `~/.copilot-cli/config.json`
 
