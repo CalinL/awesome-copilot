@@ -3,7 +3,7 @@ title: 'Using the Copilot Coding Agent'
 description: 'Learn how to use GitHub Copilot coding agent to autonomously work on issues, generate pull requests, and automate development tasks.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-05-13
+lastUpdated: 2026-08-01
 estimatedReadingTime: '12 minutes'
 tags:
   - coding-agent
@@ -65,6 +65,8 @@ steps:
   - name: Verify tests pass
     run: npm test
 ```
+
+> **Sandbox toolchain caches *(v1.0.78+)***: By default, the coding agent sandbox now grants access to toolchain caches, package registries, and install locations (`allowDevToolCaches: true`). This means `npm ci`, `pip install`, and similar package install steps work without additional configuration. If you need a stricter cache-isolated environment, set `allowDevToolCaches: false` in your sandbox policy.
 
 ### What to Include
 
