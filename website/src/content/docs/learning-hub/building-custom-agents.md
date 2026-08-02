@@ -3,7 +3,7 @@ title: 'Building Custom Agents'
 description: 'Learn how to create specialized GitHub Copilot agents with custom personas, tool integrations, and domain expertise.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-09
+lastUpdated: 2026-07-30
 estimatedReadingTime: '10 minutes'
 tags:
   - agents
@@ -71,7 +71,7 @@ tools: ['codebase', 'terminal', 'github']
 
 **description** (required): A clear summary of what the agent does. This is shown in the agent picker and helps users find the right agent.
 
-**model** (recommended): The AI model that powers the agent. Choose based on the complexity of the task—use more capable models for nuanced reasoning.
+**model** (recommended): The AI model that powers the agent. Choose based on the complexity of the task—use more capable models for nuanced reasoning. Available models include Claude Sonnet 4, **Claude Opus 5** (v1.0.75+, best for deep reasoning tasks), **grok-4.5** from xAI (v1.0.76+), and **gemini-3.6-flash** (v1.0.74+, optimized for speed). Use `/model` in any session to see all currently available models.
 
 **reasoningEffort** *(v1.0.66+)*: Override the reasoning effort level for this agent. Accepted values are `low`, `medium`, and `high`. This lets you pin specific agents to a cost/quality tradeoff regardless of the user's global setting — for example, a quick code-formatting agent can use `low` effort, while a security reviewer uses `high`:
 

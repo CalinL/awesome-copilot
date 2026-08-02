@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-30
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -73,6 +73,8 @@ The `plugin.json` manifest declares what the plugin contains:
   ]
 }
 ```
+
+*(v1.0.74+)* The CLI also supports **Open Plugin Spec v1** manifests and `mcp.json` configuration files. If your plugin or project uses an `mcp.json` to declare MCP server connections (the cross-tool standard format), the CLI reads it automatically — no conversion to `plugin.json` required. This makes it easier to share MCP server configurations between GitHub Copilot CLI, Claude Code, and other tools that support the Open Plugin Spec.
 
 ## Why Use Plugins?
 
@@ -221,6 +223,27 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+### Enabling and Disabling Plugin Components
+
+*(v1.0.76+)* The `/plugins` command provides granular enable/disable controls for every component a plugin contributes — including the plugin itself, individual instructions, agents, LSP servers, and hooks. Use it to temporarily suppress a plugin's behavior without uninstalling it:
+
+```
+/plugins
+```
+
+This opens an interactive list of all installed plugins. From there you can:
+
+- **Disable a plugin** — temporarily prevent it from contributing any agents, skills, hooks, or MCP servers
+- **Disable individual agents or instructions** — keep the rest of the plugin active but suppress specific components that conflict with your current workflow
+- **Re-enable anything** — toggle components back on at any time
+
+Changes take effect immediately for the current session and persist across sessions until you change them again.
+
+**Example use cases**:
+- A plugin's hook conflicts with a custom hook in your project — disable just the hook
+- You want to use a plugin's MCP servers but not its agents — disable the agents while keeping servers active
+- Temporarily disable a plugin during a pairing session where its behavior would be distracting
 
 ### Loading Plugins from a Local Directory
 
