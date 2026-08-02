@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-07-30
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -432,6 +432,25 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
+### Authentication
+
+To authenticate the CLI with your GitHub account, run:
+
+```bash
+copilot login
+```
+
+**Browser-based (web) OAuth login** (v1.0.77+): On local interactive terminals, `copilot login` now opens a browser window for OAuth authentication by default — no need to copy and paste device codes. The browser flow completes automatically once you authorize in the browser. On remote or headless terminals, the device code flow remains the default.
+
+Force a specific mode with:
+
+```bash
+copilot login --web-flow     # always use browser-based OAuth
+copilot login --device-code  # always use device code flow
+```
+
+You can also switch login method from inside a session with the `/login` command, which presents an interactive picker.
+
 In addition to the main config file, GitHub Copilot CLI reads two optional per-project files for repository-specific overrides:
 
 - `.claude/settings.json` — committed project settings
@@ -447,7 +466,19 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
-**Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+**Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), `gpt` (OpenAI), and `gemini` (Google). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+**New models** (mid-2026): Recent additions to the model roster include **Claude Opus 5** (v1.0.75), **grok-4.5** from xAI (v1.0.76), and **gemini-3.6-flash** (v1.0.74). Use `/model` in any session to see the full list of currently available models.
+
+**Plan mode model** (v1.0.74+): Use `/model plan` (or `/model --plan`) to choose a separate model that's used specifically while in plan mode. Pass a model ID, `off` to clear it, or no argument to open the picker:
+
+```
+/model plan                  # open the picker to select a plan-mode model
+/model plan claude-opus-5    # use Claude Opus 5 in plan mode
+/model plan off              # clear the plan-mode model override
+```
+
+This lets you use a more capable model for planning and a faster/cheaper model for execution — reverting to the session model automatically when you leave plan mode.
 
 ### CLI Session Commands
 
@@ -469,6 +500,14 @@ The settings dialog supports search — type to filter settings by name. Changes
 ```
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
+
+**Sessions sidebar** (v1.0.76+, experimental): A new Sessions sidebar lets you manage multiple concurrent sessions without leaving the main session view. Switch between sessions, spawn new ones, and see their status at a glance — all within a single terminal window. Enable it with:
+
+```
+/experimental on
+```
+
+Once enabled, the sidebar appears alongside the active session, showing all running and backgrounded sessions with live status indicators.
 
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
@@ -664,6 +703,14 @@ The `/usage` command displays session metrics such as the number of tokens consu
 ```
 /usage
 ```
+
+*(v1.0.76+)* Use `/limits predict` to get an AI-recommended credit limit for the current session, based on patterns from similar past sessions:
+
+```
+/limits predict
+```
+
+This helps you set a meaningful session credit limit before starting a long-running autonomous task, rather than guessing or leaving it unlimited.
 
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
