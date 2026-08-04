@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-04
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -507,11 +507,21 @@ You can also press **x** on a highlighted session in the session picker (`--resu
 
 In the session picker, press **`s`** to cycle the sort order: relevance, last used, created, or name. The picker also shows the branch name and idle/in-use status for each session.
 
-The `/rewind` command opens a timeline picker that lets you roll back the conversation to any earlier point in history, reverting both the conversation and any file changes made after that point. You can also trigger it by pressing **double-Esc**:
+The **Sessions sidebar** *(v1.0.76+, experimental)* gives you a persistent panel for managing multiple concurrent sessions without leaving the current conversation. It shows all active sessions with their status, lets you switch between them, and lets you spawn new sessions:
+
+```
+/experimental on    # enable experimental mode first
+```
+
+Once experimental mode is enabled, the sidebar appears automatically. Use it to monitor parallel work — for example, keep one session writing tests while another implements the feature. Hover-to-focus is off by default (opt in with `sidebar.hoverFocus` in settings); the active session card is highlighted by default (opt out with `sidebar.accentActiveSession`).
+
+The `/rewind` command opens a timeline picker that lets you roll back the conversation to any earlier point in history. You can also trigger it by pressing **double-Esc**:
 
 ```
 /rewind
 ```
+
+When rewinding, you choose whether to restore only the conversation or both the conversation and the files Copilot changed. In v1.0.78+, `/rewind` no longer requires git — it restores only the files Copilot wrote during the session, and skips any file whose contents no longer match what Copilot last wrote (for example, if you manually edited it since).
 
 Use `/rewind` when you want to branch off from a different point in the conversation, rather than just undoing the most recent turn.
 
@@ -556,6 +566,14 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+
+The `/new-worktree` command *(v1.0.78+, experimental)* creates a new git worktree **and** starts a fresh conversation in it, without backgrounding or affecting your current session. Unlike `/worktree` (which moves the current conversation into a new branch), `/new-worktree` opens an independent conversation window for the new worktree — useful when you want to hand off a task to a fully separate context:
+
+```
+/new-worktree fix-payment-retry
+```
+
+> **Experimental**: Enable experimental mode with `/experimental on` before using this command.
 
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
@@ -606,6 +624,8 @@ The `/chronicle` command opens an interactive timeline of everything the agent h
 ```
 
 Chronicle tracks which files were created, modified, or deleted during the session alongside the conversation that led to those changes. Use it to review what happened before a `/rewind`, audit what the agent changed, or share a summary of session activity with teammates.
+
+In v1.0.78+, the timeline shows **how long each tool call took**, right-aligned on the timeline header and ticking live while a tool is running (for calls of at least 5 seconds). This helps you quickly spot slow operations. The duration display is on by default — disable it with `/settings showToolDurations`.
 
 The `/chronicle skills review` subcommand *(v1.0.66+)* opens an interactive review flow for proposed draft skill changes. When the agent has suggested additions or modifications to skills during a session, you can review each draft individually and choose to accept, reject, or defer:
 
@@ -665,6 +685,14 @@ The `/usage` command displays session metrics such as the number of tokens consu
 /usage
 ```
 
+The `/limits predict` command *(v1.0.76+)* suggests a session AI-credit limit based on similar past sessions, helping you set a meaningful budget before starting a long-running task:
+
+```
+/limits predict
+```
+
+Use it before kicking off an autonomous task to get a data-driven suggestion for how many AI credits the session is likely to consume, then set a limit with `/limits` to stay within budget.
+
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
 ```
@@ -717,6 +745,14 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
 
+The `/permissions` command *(v1.0.78+)* opens an interactive dialog to switch between approval modes — interactive, autopilot, auto allow-all, or plan mode — without using separate `/allow-all` and `/autopilot` commands:
+
+```
+/permissions
+```
+
+Use `/permissions` as a single entry point to see your current approval mode and switch it in one place.
+
 The `--effort` flag (shorthand for `--reasoning-effort`) controls how much computational reasoning the model applies to a request:
 
 ```bash
@@ -760,6 +796,18 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+The **`allowDevToolAccess`** sandbox setting *(v1.0.79+)* controls whether sandboxed builds can access toolchain caches, registries, and installs (such as npm, pip, cargo, and similar package managers). It is on by default, so builds work without extra setup. Set it to `false` in `settings.json` to opt out:
+
+```json
+{
+  "sandbox": {
+    "allowDevToolAccess": false
+  }
+}
+```
+
+> **Breaking change (v1.0.79)**: This setting was introduced as `allowDevToolCaches` in v1.0.78 and immediately renamed to `allowDevToolAccess` in v1.0.79. If you set `allowDevToolCaches: false` to opt out, rename the key to `allowDevToolAccess: false` — the old key is silently ignored in v1.0.79+.
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
