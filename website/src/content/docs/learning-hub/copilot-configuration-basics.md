@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-05
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -515,6 +515,8 @@ The `/rewind` command opens a timeline picker that lets you roll back the conver
 
 Use `/rewind` when you want to branch off from a different point in the conversation, rather than just undoing the most recent turn.
 
+> **Improved rewind (v1.0.78+)**: `/rewind` no longer requires a git repository. It restores only the files that Copilot itself changed (skipping any file whose contents no longer match what Copilot last wrote), and presents a choice between reverting the conversation only, or the conversation plus all affected files.
+
 The `/undo` command reverts the last turn—including any file changes the agent made—letting you course-correct without manually undoing edits:
 
 ```
@@ -556,6 +558,8 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+
+> **`/worktree new` (v1.0.79+)**: Use `/worktree new` to start a fresh conversation in a new worktree without carrying over the current session's context — ideal for beginning a completely independent task alongside your current work.
 
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
@@ -717,6 +721,14 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
 
+The `/permissions` command *(v1.0.78+)* provides a quick way to switch between approval modes mid-session:
+
+```
+/permissions
+```
+
+This opens an interactive picker that lets you move between interactive, autopilot, and auto allow-all modes without typing the full command names. It combines the functionality of `/allow-all` and `/autopilot` into a single discoverable interface.
+
 The `--effort` flag (shorthand for `--reasoning-effort`) controls how much computational reasoning the model applies to a request:
 
 ```bash
@@ -760,6 +772,8 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+> **`allowDevToolAccess` sandbox setting (v1.0.79+)**: A new sandbox setting `allowDevToolAccess` (on by default) grants sandboxed builds access to toolchain caches, registries, and local dev-tool installs, so builds work without extra configuration. Set it to `false` in `settings.json` to opt out. This setting was previously named `allowDevToolCaches` (introduced in v1.0.78) — if you have the old name in your settings, rename it to `allowDevToolAccess`.
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
