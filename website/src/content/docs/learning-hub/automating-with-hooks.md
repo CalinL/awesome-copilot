@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-05
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -517,6 +517,8 @@ exit 0
 ### Notification on Session End
 
 Send a Slack or Teams notification when an agent session completes:
+
+> **Piped stdin runs (v1.0.78+)**: When a prompt is piped over stdin (e.g. `echo "task" | copilot`), `sessionEnd` fires once per completed agent turn with `reason` set to `complete` (or `error` if the turn failed), matching the behavior of `-p` (prompt mode). A piped run that exits before completing a turn fires no `sessionEnd` hook.
 
 ```json
 {
