@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-07
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -387,6 +387,35 @@ Settings file: `.vscode/settings.json` or global user settings
   "editor.inlineSuggest.enabled": true
 }
 ```
+
+#### Side chats with `/btw`
+
+*(VS Code 1.132+)* The `/btw` command ("by the way") lets you ask a contextual question or add information **without interrupting** the current agent turn. When the agent is mid-task, you can type `/btw what does the `config.ts` file do?` and get an answer without resetting or halting the agent's current work. This is particularly useful during long autonomous tasks when you want to stay informed without causing the agent to restart.
+
+```text
+/btw explain the authentication flow in src/auth/
+```
+
+The side chat response appears inline, and the agent continues its original task unaffected.
+
+#### Dictation customization
+
+*(VS Code 1.132+)* You can personalize how GitHub Copilot handles **voice dictation** by adding a `dictation.md` file in either your personal config directory or your repository:
+
+- **Personal**: `~/.copilot/dictation.md` — applies across all projects
+- **Repository**: `.github/dictation.md` — applies to all collaborators on that project
+
+The file contains plain-language instructions for how Copilot should process dictated input, for example formatting preferences, domain-specific vocabulary, or expansion rules:
+
+```markdown
+# Dictation customization
+
+- Expand "PR" to "pull request" in chat messages
+- When I say "ticket", treat it as a GitHub issue reference
+- Format code identifiers in backticks when I spell them out
+```
+
+This lets team members work more naturally with voice input without needing to manually correct transcription every time.
 
 ### Visual Studio
 

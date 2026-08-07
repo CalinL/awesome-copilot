@@ -3,7 +3,7 @@ title: 'Working with Canvas Extensions'
 description: 'Create and iterate on GitHub Copilot app canvases using /create-canvas, then shape them into reusable project or personal extensions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-08-07
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -121,6 +121,18 @@ Use these extension folders as concrete references:
 - [`Agent Arcade`](../../extensions/#agent-arcade-canvas): retro arcade canvas with agent-callable controls for choosing or restarting mini-games while agents work.
 
 These examples show different complexity levels, from focused workflow boards to richer UI + automation integrations.
+
+## Annotating pages with browser comments
+
+*(VS Code 1.132+)* When your canvas includes a live browser surface (such as the [Chromium Control Canvas](../../extensions/#chromium-control-canvas)), you can now **annotate individual page elements** with agent feedback directly in the browser panel. Click any element on the rendered page, leave a comment, and the agent can read and act on those annotations in the current session.
+
+This makes browser-oriented canvases much more interactive for workflows like:
+
+- **Visual QA**: Pin comments to specific UI elements that need fixing
+- **Content review**: Annotate copy or layout issues directly on a rendered page
+- **Automated testing**: Mark elements for the agent to interact with in a scripted sequence
+
+Annotations are session-scoped by default. If you need them to persist, save them to extension-scoped storage (see the storage guidance in [Best practices](#best-practices) below).
 
 ## Iterating after first creation
 
