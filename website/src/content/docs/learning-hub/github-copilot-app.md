@@ -3,7 +3,7 @@ title: 'Getting Started with the GitHub Copilot app'
 description: 'Learn about the GitHub Copilot app, a desktop experience built for agent-native development. Understand its key features and who it''s for.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-08-07
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -49,6 +49,16 @@ The central hub of the Copilot app is the **My Work** view. This dashboard shows
 - **Overall status**: A quick overview of what's in progress, what's done, and what's blocked
 
 Instead of checking GitHub, your CLI, and VS Code for updates, everything is in one place.
+
+### Sessions Tab *(v1.0.79+)*
+
+The **Sessions tab** in the sidebar lets you manage multiple concurrent sessions at a glance. You can:
+
+- See all your open sessions across repositories in one list
+- Switch between sessions without losing context
+- Start new sessions directly from the tab
+
+This complements the My Work view by giving you a faster, always-visible way to navigate active work without opening the full dashboard.
 
 ### Automations
 
@@ -145,6 +155,24 @@ Once installed, you can create a session by:
 3. **From your inbox**: The app syncs your GitHub inbox—click an issue and start a session for it
 
 Each session runs in its own worktree with its own isolated environment. You can run multiple sessions in parallel.
+
+### Opening the App from Copilot CLI
+
+If you're already in a Copilot CLI session, use the `/app` command *(v1.0.79+)* to open that exact session in the GitHub Copilot desktop app:
+
+```
+/app
+```
+
+This opens the app and navigates directly to your current session (requires GitHub Copilot app 1.1.3 or later). It's useful when you start work in the terminal and then want to switch to the app's visual interface mid-session.
+
+You can also start a new CLI session in a fresh worktree using:
+
+```
+/worktree new
+```
+
+This creates a new git worktree and opens a new conversation in it, letting you branch off into a parallel task without interrupting your current session.
 
 ### Launching Sessions from the Terminal with Deep Links
 
