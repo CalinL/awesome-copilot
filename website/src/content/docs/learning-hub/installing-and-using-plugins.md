@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-08
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -36,6 +36,12 @@ A plugin bundles one or more of the following components:
 | **Extensions** | IDE extensions installable via the plugin marketplace (v1.0.62+) | `extensions/` |
 
 A plugin might include all of these or just one — for example, a plugin could provide a single specialized agent, or an entire development toolkit with multiple agents, skills, hooks, and MCP server configurations working together.
+
+### Open Plugin Spec v1 and `mcp.json` Support *(v1.0.74+)*
+
+Copilot CLI now supports **Open Plugin Spec v1** plugin manifests in addition to the native `plugin.json` format. If a plugin directory contains an Open Plugin Spec-compatible manifest, the CLI can read and install it correctly.
+
+Copilot CLI also supports an `mcp.json` configuration file for declaring MCP server dependencies in a plugin. This provides a portable, spec-compliant way to bundle MCP server configurations alongside agents and skills, and is compatible with other tools that read `mcp.json`.
 
 ### Example: What a Plugin Looks Like
 
@@ -221,6 +227,18 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+**First-party plugins auto-update** *(v1.0.78+)*: Plugins installed from official first-party marketplaces automatically update to the latest version at the start of each session, so you always have the most current capabilities without manually running `copilot plugin update`.
+
+### Enable/Disable Individual Plugin Components
+
+*(v1.0.76+)* The `/plugins` command now includes enable/disable controls for individual plugin components — agents, instructions, LSP servers, and hooks — directly from an interactive session:
+
+```
+/plugins            # open the plugin manager with enable/disable toggles
+```
+
+Use this to temporarily disable a hook that's causing issues or to turn off an agent that's conflicting with another, without fully uninstalling the plugin.
 
 ### Loading Plugins from a Local Directory
 

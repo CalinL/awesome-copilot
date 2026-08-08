@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-08
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -428,7 +428,9 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `continueOnAutoMode` | Automatically switch to the auto model on rate limit instead of pausing |
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
-| `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
+| `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode. **Default: `true` as of v1.0.76** (previously `false`) |
+| `showToolDurations` | Show how long each tool call took, right-aligned in timeline headers (ticks live for calls ≥5 s). Enabled by default — disable with `/settings showToolDurations false` (v1.0.78+) |
+| `allowDevToolCaches` | Grant sandboxed builds access to toolchain caches, registries, and installs so builds work without extra setup. Enabled by default — set `false` to opt out (v1.0.78+) |
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
@@ -448,6 +450,24 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+**Recently added models**: The following models became available in recent releases:
+
+| Model | Release |
+|-------|---------|
+| Claude Opus 5 | v1.0.75 |
+| grok-4.5 | v1.0.76 |
+| gemini-3.6-flash | v1.0.74 |
+
+**`/model plan`** *(v1.0.74+)*: Pick a separate model to use while in plan mode — useful when you want a more capable model for planning without changing your main session model:
+
+```
+/model plan                 # open the model picker for plan mode
+/model --plan claude-opus-5 # set plan-mode model directly
+/model plan off             # clear the plan-mode model override (reverts to session model)
+```
+
+The plan-mode model reverts to the session model when you leave plan mode.
 
 ### CLI Session Commands
 
@@ -557,6 +577,16 @@ This creates a branch named from your task description and begins working on it 
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
+The `/new-worktree` command *(v1.0.78, experimental)* creates a new worktree and starts a **fresh conversation** in it — unlike `/worktree` which moves your current session into the new worktree:
+
+```
+/new-worktree my-feature-branch     # create worktree and start new conversation in it
+```
+
+Use `/new-worktree` when you want to spawn a parallel session on a new branch while keeping your current session exactly where it is.
+
+**Sessions sidebar** *(v1.0.76+, experimental)*: A new sidebar for managing multiple concurrent sessions lets you switch between them, spawn new ones, and see their status at a glance. Enable it with `/experimental on`, then toggle the sidebar with the sidebar key binding. Each session card shows its status, and the active session is accented by default.
+
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
 ```
@@ -627,6 +657,8 @@ Use `/diagnose` when a session is behaving unexpectedly — it inspects session 
 
 **Keyboard shortcuts for queuing messages**: Use **Ctrl+Q** or **Ctrl+Enter** to queue a message (send it while the agent is still working). **Ctrl+D** no longer queues messages — it now has its default terminal behavior. If you have muscle memory for Ctrl+D queuing, switch to Ctrl+Q.
 
+**Directable queue manager** *(v1.0.76+)*: The message queue now has a built-in queue manager (accessible while messages are queued) that lets you reorder, edit, remove, repeat, and immediately send queued messages. This gives you fine-grained control over multi-turn work you've pre-queued — for example, you can pull a later message forward, edit an earlier one, or remove a step you no longer need, all without cancelling the current agent turn.
+
 **Background running tasks**: Press **Ctrl+X → B** to move the current running task or shell command to the background. The task continues executing while you can type a new message or review earlier output. This is useful for long-running commands where you want to interact with the agent while waiting for the result.
 
 **Shell command history in normal mode** (v1.0.65+): The **↑/↓** arrow keys and **Ctrl+R** reverse search now include past shell commands (commands run with `!`) while you are in normal (non-shell) input mode. Previously you had to type `!` to enter shell mode before history worked. Now you can recall and re-run a shell command without switching modes first — useful for quickly repeating a build, test, or diagnostic command from earlier in the session.
@@ -663,6 +695,12 @@ The `/usage` command displays session metrics such as the number of tokens consu
 
 ```
 /usage
+```
+
+The `/limits` command manages session AI-credit and turn limits. Use `/limits predict` *(v1.0.76+)* to get a suggested limit based on similar past sessions — useful before starting a long-running autonomous task:
+
+```
+/limits predict     # suggest a session credit limit from similar sessions
 ```
 
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
@@ -714,6 +752,14 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 > **Enhanced autopilot (v1.0.64+)**: When autopilot mode is active — including when launched with `--autopilot` at startup or during automatic continuation turns — the agent automatically handles elicitation dialogs, `ask_user` prompts, sampling requests, and permission prompts without surfacing them as interactive dialogs. This means long-running automated sessions can proceed end-to-end without manual confirmation steps.
 
 > **Auto allow-all mode (v1.0.69+)**: In addition to the standard allow-all mode (which approves everything), the CLI now supports an **auto allow-all** mode that uses an LLM judge to evaluate each tool request. When enabled, the judge automatically approves requests it evaluates as acceptable, and asks you for manual confirmation only for requests it considers risky. This gives you a middle ground between full autopilot and fully supervised operation — most routine actions proceed automatically while unusual or potentially dangerous actions still surface for your review. As of v1.0.69-3, this mode requires experimental features to be enabled — use `/experimental on` or start the CLI with `--experimental` — then activate it with `/allow-all auto`. The previous `AUTO_APPROVAL` environment variable approach has been removed in favour of experimental mode.
+
+The `/permissions` command *(v1.0.76+)* is a unified shortcut for switching between approval modes directly in a session:
+
+```
+/permissions          # open an interactive picker to choose the approval mode
+```
+
+Use `/permissions` when you want a quick way to switch between interactive, autopilot, or auto modes without remembering the specific `/allow-all` or `/autopilot` subcommands.
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
 
