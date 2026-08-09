@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-09
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -470,6 +470,21 @@ The settings dialog supports search — type to filter settings by name. Changes
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
 
+The `/model` command also accepts a `--session` flag (v1.0.72+, shorthand `-s`) to change the model, reasoning effort, or context window for just the **current session**, leaving your global settings unchanged:
+
+```
+/model --session claude-sonnet-4.6   # use this model for this session only
+/model -s --effort high              # raise reasoning effort for this session
+```
+
+In **plan mode**, you can set a separate model specifically for planning with `/model plan` or `/model --plan` (v1.0.74+). Pass a model ID to set it, `off` to clear it, or no argument to open the picker. The plan-mode model reverts to your session model when you leave plan mode:
+
+```
+/model plan                        # open model picker for plan mode
+/model plan claude-opus-5          # use opus for planning, your default for execution
+/model plan off                    # clear plan-mode model override
+```
+
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
 | Command | Behaviour |
@@ -515,6 +530,8 @@ The `/rewind` command opens a timeline picker that lets you roll back the conver
 
 Use `/rewind` when you want to branch off from a different point in the conversation, rather than just undoing the most recent turn.
 
+> **Updated behavior (v1.0.78+)**: `/rewind` no longer requires git. It restores only the files that Copilot changed, and skips any file whose contents no longer match what Copilot last wrote (so manually edited files are preserved). When you run `/rewind`, you choose between **conversation only** (revert the chat but keep all files) or **conversation + files** (revert both).
+
 The `/undo` command reverts the last turn—including any file changes the agent made—letting you course-correct without manually undoing edits:
 
 ```
@@ -541,7 +558,7 @@ The `/cd` command changes the working directory for the current session. Since v
 
 This is useful when you have multiple backgrounded sessions each focused on a different project directory.
 
-The `/worktree` command (v1.0.61+, also aliased `/move`) creates a new git worktree and switches into it, moving any uncommitted changes along. This lets you start working on a parallel branch without leaving your current terminal session:
+The `/worktree` command (v1.0.61+) creates a new git worktree and switches into it, **leaving any uncommitted changes behind** in the original worktree. This lets you start working on a parallel branch without leaving your current terminal session:
 
 ```
 /worktree my-feature-branch
@@ -555,7 +572,11 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
 
-After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+> **`/worktree` vs `/move` (v1.0.71+)**: These are now separate commands with distinct behavior. `/worktree` creates a new worktree and **leaves your uncommitted changes behind** in the current directory — use it when you want a clean slate on the new branch. `/move` creates a new worktree and **carries your uncommitted changes with you** into the new worktree — use it when you want to continue the work you've already started on a new branch. Before v1.0.71, `/move` was an alias for `/worktree`.
+
+After the command runs, the session is inside the new worktree. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
+
+> **`/new-worktree` (v1.0.78, experimental)**: The experimental `/new-worktree` command creates a new worktree and starts a **new conversation** in it (rather than continuing the current session). This is useful when you want a completely fresh context window for a parallel task.
 
 The `/every` command (also available as `/loop` since v1.0.64) schedules a recurring prompt to run automatically at a specified interval. The companion `/after` command runs a prompt once after a specified delay. Both are useful for self-paced automation — polling for results, periodically summarizing progress, or triggering other slash commands on a timer:
 
@@ -616,6 +637,15 @@ The `/chronicle skills review` subcommand *(v1.0.66+)* opens an interactive revi
 This keeps you in control of skill evolution — the agent can propose skill improvements as it discovers reusable patterns, but nothing is applied until you explicitly approve each change.
 
 > **Note**: Session history, file tracking, and the `/chronicle` command were previously experimental features. As of v1.0.40, they are available to all users without enabling experimental mode.
+
+The `/limits` command shows your current AI credit usage for the session. In v1.0.76+, the `/limits predict` subcommand analyzes sessions similar to your current one and **suggests an AI-credit limit** that fits your workflow:
+
+```
+/limits           # show current credit usage
+/limits predict   # suggest a credit limit based on similar past sessions
+```
+
+Use `/limits predict` when working on long-running tasks where you want to set a budget before the agent runs away with credits.
 
 The `/diagnose` command (v1.0.64+) analyzes the current session's logs and surfaces diagnostic information to help troubleshoot unexpected behavior, performance issues, or errors:
 
@@ -717,6 +747,14 @@ Use `/autopilot` when you want to flip between supervised and unsupervised opera
 
 > **Read-only `gh` CLI commands (v1.0.46+)**: Read-only `gh` commands — such as `gh issue list`, `gh pr view`, `gh run status`, and other commands that don't write to GitHub — are **automatically approved** without a permission prompt. Only commands that write to GitHub (like creating issues, merging PRs) still require explicit approval. This reduces friction during exploratory sessions where you frequently check issue or PR status.
 
+The `/permissions` command (v1.0.78+) lets you switch between approval modes directly from within an active session, without restarting:
+
+```
+/permissions      # open the approval mode picker
+```
+
+This is equivalent to changing the `approvalMode` in `/settings`, but takes effect immediately in the current session. Use it when you want to switch from supervised to autopilot mid-task, or tighten up approvals when the agent is about to do something sensitive.
+
 The `--effort` flag (shorthand for `--reasoning-effort`) controls how much computational reasoning the model applies to a request:
 
 ```bash
@@ -744,6 +782,8 @@ copilot --plan          # start in plan mode (propose without executing)
 
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
 
+> **Plan mode mutation guardrails (v1.0.71+)**: Plan mode now **hard-blocks** built-in tool calls that would modify the workspace. The agent cannot edit files or run mutating shell commands while planning — built-in mutators (like opening a pull request) are blocked. MCP and external tools are still allowed. This ensures plan mode stays read-only until you explicitly approve the plan. In v1.0.74+, plan mode also allows session-folder planning artifacts (e.g., writing a `plan.md` to a session temp folder) while still blocking mutations to your project files.
+
 The `--max-autopilot-continues` flag controls how many times Copilot can automatically continue in autopilot mode before pausing for confirmation. The default is 5:
 
 ```bash
@@ -760,6 +800,8 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+> **Sandbox dev tool caches (v1.0.78+)**: A new sandbox setting `allowDevToolCaches` (on by default) grants sandboxed builds access to toolchain caches, registries, and installs — so builds work without extra setup inside the sandbox. Set it to `false` to opt out and fully isolate the sandbox from your local toolchain cache.
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 

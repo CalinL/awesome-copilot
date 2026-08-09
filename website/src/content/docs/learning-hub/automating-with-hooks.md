@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-09
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -368,6 +368,12 @@ Run ESLint after the agent finishes responding and block if there are errors:
 ```
 
 If the lint command exits with a non-zero status, the action is blocked.
+
+> **`agentStop` loop protection (v1.0.72+)**: If an `agentStop` hook always returns a non-zero (blocking) exit code, the CLI now ends the turn after **8 consecutive blocks** instead of looping indefinitely. Your hook also receives a `stop_hook_active` flag in its input so it can detect this condition and self-limit:
+> ```json
+> { "event": "agentStop", "stop_hook_active": true }
+> ```
+> Check this flag in your hook script to avoid blocking a forced continuation.
 
 ### Security Gating with preToolUse
 
