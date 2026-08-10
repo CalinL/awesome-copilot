@@ -3,7 +3,7 @@ title: 'Building Custom Agents'
 description: 'Learn how to create specialized GitHub Copilot agents with custom personas, tool integrations, and domain expertise.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-09
+lastUpdated: 2026-08-10
 estimatedReadingTime: '10 minutes'
 tags:
   - agents
@@ -97,7 +97,19 @@ tools: ['codebase', 'terminal', 'github']
 
 For MCP server tools, reference them by server name (e.g., `postgres`, `docker`). See [Understanding MCP Servers](../understanding-mcp-servers/) for details.
 
-### Agent Instructions
+**deferredToolLoading** *(v1.0.79+)*: When set to `true`, the agent's tools are not loaded until the agent actually needs to use them. This speeds up session startup for agents with many MCP tools, since heavy tool initialization is deferred until first use:
+
+```yaml
+---
+name: 'Database Analyst'
+description: 'Analyzes database schemas and query performance'
+model: Claude Sonnet 4
+tools: ['codebase', 'postgres', 'redis']
+deferredToolLoading: true
+---
+```
+
+This is particularly useful for plugin-distributed agents that bundle many MCP server tools — only the tools actually invoked during a session incur startup cost.
 
 After the frontmatter, write Markdown instructions that define the agent's behavior. Structure these clearly:
 
