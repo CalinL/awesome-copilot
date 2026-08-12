@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-12
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -33,7 +33,7 @@ A plugin bundles one or more of the following components:
 | **Hooks** | Event handlers that intercept agent behavior | `hooks.json` or `hooks/` |
 | **MCP Servers** | Model Context Protocol integrations for external tools | `.mcp.json` or `.github/mcp.json` |
 | **LSP Servers** | Language Server Protocol integrations | `lsp.json` or `.github/lsp.json` |
-| **Extensions** | IDE extensions installable via the plugin marketplace (v1.0.62+) | `extensions/` |
+| **Extensions** | IDE extensions installable via the plugin marketplace (v1.0.62+). Agent Plugins spec plugins can also ship extensions under a `com.github.copilot/extensions/` directory (v1.0.79+) | `extensions/` or `com.github.copilot/extensions/` |
 
 A plugin might include all of these or just one — for example, a plugin could provide a single specialized agent, or an entire development toolkit with multiple agents, skills, hooks, and MCP server configurations working together.
 
@@ -159,6 +159,22 @@ To automatically register an additional marketplace for everyone working in a re
 ```
 
 With this in place, team members automatically get the `my-org-plugins` marketplace available without running a separate `marketplace add` command. This replaces the older `marketplaces` setting, which was removed in v1.0.16.
+
+*(v1.0.79+)* Add `"autoUpdate": true` to an `extraKnownMarketplaces` entry to automatically update its plugins to the latest version at session start — no manual `copilot plugin marketplace update` required:
+
+```json
+{
+  "extraKnownMarketplaces": [
+    {
+      "name": "my-org-plugins",
+      "source": "my-org/internal-plugins",
+      "autoUpdate": true
+    }
+  ]
+}
+```
+
+Use `autoUpdate` for marketplaces where you always want the latest version. Omit it (or set it to `false`) for marketplaces where you prefer explicit control over updates.
 
 ### Pinning a Marketplace to a Specific Commit
 
