@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-12
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -429,6 +429,8 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
 | `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
+| `worktreeBaseRef` | Controls whether `/worktree`, `/worktree new`, and `--worktree` start from `HEAD` or the remote default branch. Defaults to `HEAD` for all three variants (v1.0.79+) |
+| `pinnedPrompts` | Show a pinned copy of the current prompt in the UI; off by default. Set to `true` to enable, or leave unset to let the CLI decide based on terminal height (v1.0.79+) |
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
@@ -448,6 +450,8 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+**Model picker grouping** (v1.0.79+): The model picker now groups models into **Recent**, **Recommended**, **New**, and other sections. Press **Shift+Tab** to cycle between grouping views, making it easier to find newly added models or return to your most-used ones. New models added in recent releases include `kimi-k3`.
 
 ### CLI Session Commands
 
@@ -469,6 +473,15 @@ The settings dialog supports search — type to filter settings by name. Changes
 ```
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
+
+*(v1.0.79+)* **`/model` is now session-scoped by default.** Using `/model` during a session changes the model for that session only — it no longer persists to your user settings. To set a default model for all future sessions, use `/config model` instead:
+
+```
+/model claude-sonnet-4.6     # change model for this session only
+/config model claude-sonnet-4.6  # set default for future sessions
+```
+
+This change makes it easier to experiment with different models mid-session without accidentally changing your baseline configuration.
 
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
@@ -506,6 +519,16 @@ The `/session delete` command removes sessions you no longer need:
 You can also press **x** on a highlighted session in the session picker (`--resume`) to delete it directly from the list.
 
 In the session picker, press **`s`** to cycle the sort order: relevance, last used, created, or name. The picker also shows the branch name and idle/in-use status for each session.
+
+*(v1.0.79+)* **Manage multiple concurrent sessions** from the **Sessions** tab in the sidebar. The Sessions tab shows all active and backgrounded sessions, their status, and lets you switch between them without leaving the current terminal window.
+
+The **`/app` command** *(v1.0.79+)* opens the current CLI session in the [GitHub Copilot desktop app](../github-copilot-app/), so you can hand off an in-progress session to the app's visual interface:
+
+```
+/app
+```
+
+This requires GitHub Copilot app v1.1.3 or later. It's particularly useful when you started a task in the terminal and want to continue monitoring it in the app's My Work view, or when you want to use the app's canvas or visual diff features.
 
 The `/rewind` command opens a timeline picker that lets you roll back the conversation to any earlier point in history, reverting both the conversation and any file changes made after that point. You can also trigger it by pressing **double-Esc**:
 
@@ -554,6 +577,22 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 ```
 
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
+
+*(v1.0.79+)* Use **`/worktree new`** to start a **new independent session** in a new worktree, rather than moving the current session:
+
+```
+/worktree new my-feature-branch
+```
+
+Unlike `/worktree`, which moves your existing session into the worktree, `/worktree new` opens a fresh session in the new worktree while leaving your current session unchanged. This is useful when you want to hand off a task to a parallel session without interrupting your current work.
+
+All three worktree variants — `/worktree`, `/worktree new`, and the `--worktree` startup flag — now default to branching from **HEAD** rather than the remote default branch. You can change this with the `worktreeBaseRef` setting in your config:
+
+```json
+{
+  "worktreeBaseRef": "origin/main"
+}
+```
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
@@ -626,6 +665,8 @@ The `/diagnose` command (v1.0.64+) analyzes the current session's logs and surfa
 Use `/diagnose` when a session is behaving unexpectedly — it inspects session logs and reports what it finds, making it easier to share diagnostics with support or understand what happened internally.
 
 **Keyboard shortcuts for queuing messages**: Use **Ctrl+Q** or **Ctrl+Enter** to queue a message (send it while the agent is still working). **Ctrl+D** no longer queues messages — it now has its default terminal behavior. If you have muscle memory for Ctrl+D queuing, switch to Ctrl+Q.
+
+*(v1.0.79+)* **Prompt queuing for local sessions**: Beyond keyboard shortcuts, you can now explicitly **queue prompts, shell commands, and supported slash commands** in local sessions to run in order after the current task finishes. This lets you line up a series of tasks without waiting for each to complete — type your next instruction while the agent is still working, and it will automatically start the next queued item when it's done.
 
 **Background running tasks**: Press **Ctrl+X → B** to move the current running task or shell command to the background. The task continues executing while you can type a new message or review earlier output. This is useful for long-running commands where you want to interact with the agent while waiting for the result.
 
@@ -742,6 +783,14 @@ copilot --autopilot     # alias for --mode autopilot (allow-all)
 copilot --plan          # start in plan mode (propose without executing)
 ```
 
+*(v1.0.79+)* Combine `--plan` with `--mode autopilot` to **plan first, then automatically implement** without stopping for approval between the two phases:
+
+```bash
+copilot --plan --mode autopilot "Refactor the authentication module"
+```
+
+This is useful in CI pipelines or automated tasks where you want Copilot to produce a plan and immediately carry it out, bypassing the interactive approval step that normally separates planning from execution.
+
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
 
 The `--max-autopilot-continues` flag controls how many times Copilot can automatically continue in autopilot mode before pausing for confirmation. The default is 5:
@@ -760,6 +809,8 @@ copilot --no-sandbox -p "Set up development environment with system tools"
 ```
 
 These flags apply only to the current invocation — your persisted sandbox preference remains unchanged.
+
+> **Breaking change (v1.0.79+)**: The sandbox setting `allowDevToolCaches` has been **renamed to `allowDevToolAccess`**. The old key is silently ignored, so an existing `false` opt-out will revert to the default (enabled). Rename it in your `settings.json` and any managed/MDM policy files. The new name reflects the broader scope of the setting: it grants access to dev-tool configuration, registries, and caches.
 
 The `--attachment` flag (available in prompt mode, `-p`) lets you attach files — images or native documents — to the initial prompt in non-interactive mode:
 
