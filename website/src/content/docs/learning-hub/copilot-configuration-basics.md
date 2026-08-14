@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-14
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -445,6 +445,8 @@ These files follow the same format as `config.json` and are loaded after the glo
 
 The model picker opens in a **full-screen view** with inline reasoning effort adjustment. Use the **← / →** arrow keys to change the reasoning effort level (`low`, `medium`, `high`) directly from the picker without leaving the session. The current reasoning effort level is also displayed in the model header (e.g., `claude-sonnet-4.6 (high)`) so you always know which level is active.
 
+*(v1.0.79+)* The model picker now groups models into **Recent**, **Recommended**, **New**, and other sections, making it easier to find newly added models and return to models you use frequently. Use **Shift+Tab** to switch between grouping views.
+
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
@@ -554,6 +556,21 @@ In v1.0.66+, you can pass a task description to `/worktree` to name the branch f
 ```
 
 This creates a branch named from your task description and begins working on it immediately, making it easy to spin up parallel work without stopping to think of a branch name.
+
+*(v1.0.79+)* Use `/worktree new` to start a **new session** in a new worktree without switching the current session away from its branch. This is the right choice when you want to keep your current work in place and spin up a parallel, independent session on a fresh worktree:
+
+```
+/worktree new
+/worktree new my-feature-branch   # with a specific branch name
+```
+
+The **`worktreeBaseRef` setting** *(v1.0.79+)* controls whether `/worktree`, `/worktree new`, and `--worktree` create the new worktree from `HEAD` or the remote default branch. As of v1.0.79, all three default to `HEAD`. Set this in your user config if you want new worktrees to always start from the remote default branch instead:
+
+```json
+{
+  "worktreeBaseRef": "origin/main"
+}
+```
 
 After the command runs, the session is inside the new worktree. Use this when you want to work on a second task in parallel without stashing changes or opening a new terminal. In v1.0.64+ you can also use the experimental `--worktree` flag at startup (`copilot -w [name]`) to create or reuse a worktree under `<repo>.worktrees/` before the session begins.
 
@@ -709,6 +726,12 @@ The `/autopilot` command (v1.0.45+) is a quick in-session toggle that switches b
 /autopilot        # toggle between interactive and autopilot modes
 ```
 
+*(v1.0.79+)* You can also pass an explicit objective directly to `/autopilot` without needing experimental features enabled:
+
+```
+/autopilot Refactor the auth module to use JWT tokens
+```
+
 Use `/autopilot` when you want to flip between supervised and unsupervised operation mid-session without typing out the full `/allow-all on` or `/allow-all off` commands.
 
 > **Enhanced autopilot (v1.0.64+)**: When autopilot mode is active — including when launched with `--autopilot` at startup or during automatic continuation turns — the agent automatically handles elicitation dialogs, `ask_user` prompts, sampling requests, and permission prompts without surfacing them as interactive dialogs. This means long-running automated sessions can proceed end-to-end without manual confirmation steps.
@@ -740,6 +763,12 @@ The `--mode` flag (along with its aliases `--autopilot` and `--plan`) lets you l
 copilot --mode agent    # start in agent mode (autonomous tool use)
 copilot --autopilot     # alias for --mode autopilot (allow-all)
 copilot --plan          # start in plan mode (propose without executing)
+```
+
+*(v1.0.79+)* Combine `--plan` with `--mode autopilot` to have the CLI plan first and then immediately implement the plan without waiting for your approval:
+
+```bash
+copilot --plan --mode autopilot "Refactor the authentication module"
 ```
 
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
