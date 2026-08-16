@@ -3,7 +3,7 @@ title: 'Using the Copilot Coding Agent'
 description: 'Learn how to use GitHub Copilot coding agent to autonomously work on issues, generate pull requests, and automate development tasks.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-05-13
+lastUpdated: 2026-08-16
 estimatedReadingTime: '12 minutes'
 tags:
   - coding-agent
@@ -131,6 +131,16 @@ Or provide more specific direction:
 @copilot implement the user avatar upload feature described above.
 Use the existing FileUpload component and S3 service.
 ```
+
+### Using Plan Mode Before Autopilot
+
+*(v1.0.79+)* You can combine `--plan` with `--mode autopilot` to have the agent plan first and then implement without waiting for approval at each step:
+
+```bash
+copilot --plan --mode autopilot
+```
+
+This is useful when you want the agent to think through the approach before executing — giving you a chance to review the plan mentally — but without requiring you to approve every individual tool call once execution begins.
 
 ### Using Custom Agents
 
@@ -365,6 +375,30 @@ copilot --resume
 ```
 
 Since v1.0.47, `--resume` also surfaces **cloud agent sessions that haven't yet pushed any changes** to their branch — useful for connecting to a session early in its run, before it has committed anything.
+
+### Managing Multiple Sessions
+
+*(v1.0.79+)* The CLI now includes a **Sessions tab and sidebar** for managing multiple concurrent sessions. You can switch between active sessions, spawn new ones, and track their status at a glance — all without leaving Copilot. This is especially useful when you have several coding agent sessions running in parallel.
+
+### Starting a New Session in a New Worktree
+
+*(v1.0.79+)* Use `/worktree new` to create a new worktree and start a fresh conversation in it — without leaving your current session:
+
+```
+/worktree new
+```
+
+This is useful when you want to start a parallel task on a clean branch while keeping your existing session active. The new worktree defaults to starting from `HEAD`; you can change this default with the `worktreeBaseRef` setting (see [Copilot Configuration Basics](../copilot-configuration-basics/)).
+
+### Opening a Session in the GitHub Copilot App
+
+If you prefer a graphical interface for a running CLI session, use the `/app` command to open it directly in the GitHub Copilot desktop app:
+
+```
+/app
+```
+
+This opens your current session in the Copilot app (requires GitHub Copilot app 1.1.3 or later), so you can switch to a visual worktree view without losing your place.
 
 ### Why Use Remote Control?
 
