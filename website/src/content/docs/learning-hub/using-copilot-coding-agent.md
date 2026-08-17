@@ -3,7 +3,7 @@ title: 'Using the Copilot Coding Agent'
 description: 'Learn how to use GitHub Copilot coding agent to autonomously work on issues, generate pull requests, and automate development tasks.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-05-13
+lastUpdated: 2026-08-17
 estimatedReadingTime: '12 minutes'
 tags:
   - coding-agent
@@ -376,6 +376,58 @@ Since v1.0.47, `--resume` also surfaces **cloud agent sessions that haven't yet 
 | No PR required | You can steer tasks that haven't yet opened a pull request |
 
 > **Note**: Remote control replaces the earlier "steering" feature. If you see references to steering in older documentation, remote control is the updated equivalent.
+
+## Worktrees and the Coding Agent
+
+*(v1.0.79+)* Worktrees let you start a session in a fully isolated copy of your branch, without affecting your current working directory.
+
+### Creating a new worktree session
+
+```bash
+/worktree new
+```
+
+This creates a new session in a new git worktree. The worktree is a real, isolated copy of your branch — the agent working there can't affect the files in your current window. Combined with the Sessions tab, this makes parallel work on multiple tasks practical: each session has its own worktree, its own branch, and its own environment.
+
+You can also control where the new worktree starts from with the `worktreeBaseRef` setting. The default is `HEAD`, but you can configure it to start from the remote default branch instead:
+
+```json
+{
+  "worktreeBaseRef": "origin/main"
+}
+```
+
+## Autopilot mode and objectives
+
+*(v1.0.79+)* You can set an explicit objective for Copilot with `/autopilot <objective>` — without enabling experimental mode first:
+
+```bash
+/autopilot Fix the authentication bug described in issue #42
+```
+
+This tells the agent what the final goal is, so it can plan and implement autonomously toward that outcome.
+
+### Combining plan mode with autopilot
+
+*(v1.0.79+)* Use `--plan` with `--mode autopilot` to have Copilot plan first and then implement without waiting for your approval:
+
+```bash
+copilot --plan --mode autopilot -p "Implement the rate limiter described in issue #78"
+```
+
+This gives you the structured planning output as a checkpoint while still letting the agent proceed to implementation automatically.
+
+## Queueing prompts
+
+*(v1.0.79+)* You can queue prompts, shell commands, and supported slash commands in local sessions to run in order after the current task finishes. This is useful when you want to chain follow-up instructions without waiting for each step to complete:
+
+```
+@copilot implement the login endpoint
+[queue next prompt after it completes:]
+now add tests for the login endpoint
+```
+
+Queued prompts appear with a "pending · ctrl+c to cancel" indicator in the timeline, and each runs in sequence once the prior step is done.
 
 ## Hooks and the Coding Agent
 

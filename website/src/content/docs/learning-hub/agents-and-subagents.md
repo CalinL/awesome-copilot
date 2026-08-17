@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-08-17
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -193,6 +193,65 @@ That means you should think about delegation features in product-specific terms:
 - **GitHub.com coding agent / cloud agent**: supports custom agents, but some VS Code-specific frontmatter is intentionally ignored
 
 If you share agent files across surfaces, document those differences so users know which behaviors are portable and which are editor-specific.
+
+## Sharing sessions across terminals with AHP
+
+*(v1.0.80+)* The **Agent Host Protocol (AHP)** lets multiple terminal windows attach to the same running session. This extends the multi-agent model beyond subagent delegation: instead of one agent spawning another in the background, AHP makes it possible for multiple people or processes to observe and steer the same agent session simultaneously.
+
+### Starting an AHP host
+
+Launch the CLI with `--ahp` to attach to an Agent Host Protocol host:
+
+```bash
+copilot --ahp
+```
+
+When no host is running, `--ahp` starts one automatically in the current directory. If a host is already running, it attaches to it (preferring one whose workspace covers your current directory).
+
+### Managing hosts and sessions
+
+Once connected to an AHP host, use `/ahp` commands to manage hosts and sessions:
+
+```bash
+/ahp start [port]        # start a new host serving the current directory
+/ahp stop <host>         # stop a running host
+/ahp restart <host>      # restart a host on its current workspace
+/ahp sessions            # list sessions on the host
+/ahp attach <session>    # attach to an existing session
+/ahp new                 # create a new session on the host
+/ahp status              # show host identity, version, and connection health
+/ahp hosts               # list all registered hosts
+/ahp use <host>          # switch the active source to a different host
+```
+
+### Connecting to remote hosts
+
+AHP also supports remote compute environments:
+
+```bash
+/ahp codespace <name>    # forward a Codespace's copilotd port and add it to the Sessions tab
+/ahp cloud <env-id>      # put a Mission Control cloud environment in the Sessions tab
+```
+
+### What AHP changes about multi-agent work
+
+When using `--ahp`, the Sessions tab shows all sessions on the host — including ones started by other terminals. Each host row shows whether a session is running, waiting for input, or idle, with busy sessions sorted to the top. Joining a session another terminal started is as simple as pressing `Enter` on it.
+
+This is complementary to subagent delegation:
+- **Subagents** handle context isolation and parallelism within a single workflow
+- **AHP** handles access and visibility across multiple terminals and people
+
+> **Note**: `--ahp` and `/ahp` are currently gated on the `AHP_CLIENT` feature flag for staff.
+
+## Navigating subagent tasks
+
+*(v1.0.79+)* When a subagent is running a delegated task, the **`/tasks`** command provides richer navigation over in-flight work:
+
+- **Nested tree browsing** — see the full hierarchy of delegated subtasks
+- **Current/all and finished-task filters** — filter the view to active tasks or completed ones
+- **Live timeline** — watch the task's progress in real time and steer it with follow-up prompts
+
+This makes large orchestrated workflows easier to inspect and redirect without having to wait for a PR or final output.
 
 ## Common questions
 

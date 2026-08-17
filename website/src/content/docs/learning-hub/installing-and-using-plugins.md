@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-17
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -182,6 +182,26 @@ Pinning to a SHA guarantees that everyone on the team installs plugins from exac
 - **Change control** — review and approve plugin updates before rolling them out team-wide
 - **Stability** — prevent breaking changes in upstream marketplaces from impacting your team without notice
 
+### Auto-updating a Marketplace at Session Start
+
+*(v1.0.79+)* Set `autoUpdate: true` on an `extraKnownMarketplaces` entry to automatically refresh the marketplace catalog when you start a session:
+
+```json
+{
+  "extraKnownMarketplaces": [
+    {
+      "name": "my-org-plugins",
+      "source": "my-org/internal-plugins",
+      "autoUpdate": true
+    }
+  ]
+}
+```
+
+With `autoUpdate` enabled, the CLI fetches the latest catalog from that marketplace every time a session starts, so you always see up-to-date plugin listings without running `copilot plugin marketplace update` manually. This is particularly useful for fast-moving internal marketplaces where you want the team to always see the newest plugins.
+
+> **Note**: `autoUpdate` is also honored from managed (MDM/server) settings, not just user settings.
+
 ## Installing Plugins
 
 ### From Copilot CLI
@@ -217,6 +237,9 @@ copilot plugin update my-plugin
 
 # Refresh all marketplace catalogs (fetch the latest list of available plugins)
 copilot plugin marketplace update
+
+# Refresh a specific marketplace catalog
+copilot plugin marketplace update my-org-plugins
 
 # Remove a plugin
 copilot plugin uninstall my-plugin
@@ -273,6 +296,23 @@ If you only need a single agent or skill (rather than a full plugin), you can st
 - Copy a hook configuration into `.github/hooks/`
 
 See [Using the Copilot Coding Agent](../using-copilot-coding-agent/) for details on this approach.
+
+## Plugin Spec Breaking Change (v1.0.80)
+
+*(v1.0.80)* **Breaking change for plugin authors**: Agent Plugins spec plugins now read their components — commands, agents, rules, hooks (`hooks.json`), LSP config (`lsp.json`), and extensions — **only** from a `com.github.copilot/` subdirectory within the plugin, rather than from the plugin root.
+
+If you maintain a plugin and it places any of these at the plugin root, move them:
+
+| Before | After |
+|--------|-------|
+| `my-plugin/agents/` | `my-plugin/com.github.copilot/agents/` |
+| `my-plugin/hooks.json` | `my-plugin/com.github.copilot/hooks.json` |
+| `my-plugin/lsp.json` | `my-plugin/com.github.copilot/lsp.json` |
+| `my-plugin/extensions/` | `my-plugin/com.github.copilot/extensions/` |
+
+Plugins hosted in the `awesome-copilot` repository have already been updated. If you maintain a private plugin, update its structure before upgrading to v1.0.80 to avoid losing components silently.
+
+> **Note**: The CLI now reports the file and correct location for any component found at the wrong path, instead of silently ignoring it.
 
 ## Best Practices
 
