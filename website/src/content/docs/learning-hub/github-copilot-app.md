@@ -3,7 +3,7 @@ title: 'Getting Started with the GitHub Copilot app'
 description: 'Learn about the GitHub Copilot app, a desktop experience built for agent-native development. Understand its key features and who it''s for.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-08-19
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -149,6 +149,10 @@ Each session runs in its own worktree with its own isolated environment. You can
 ### Launching Sessions from the Terminal with Deep Links
 
 The GitHub Copilot app supports URL deep links. This is useful when you want to open the app or start a session directly from your terminal workflow.
+
+#### Jumping from a CLI Session to the App
+
+*(v1.0.79+, requires GitHub Copilot app 1.1.3+)* If you're in a Copilot CLI session and want to continue in the desktop app, run `/app` to open the current session in the GitHub Copilot app. The app opens directly to your in-progress session — no need to navigate from Home.
 
 Supported schemes:
 
