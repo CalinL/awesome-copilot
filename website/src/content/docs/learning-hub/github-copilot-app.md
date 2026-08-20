@@ -3,7 +3,7 @@ title: 'Getting Started with the GitHub Copilot app'
 description: 'Learn about the GitHub Copilot app, a desktop experience built for agent-native development. Understand its key features and who it''s for.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-08-20
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -198,6 +198,16 @@ open "ghapp://session/new?repo=owner/repo&mode=plan"
 - `ghapp://workflows` - Open automations
 - `ghapp://owner/repo/issues/123` - Open an issue
 - `ghapp://owner/repo/pull/456` - Open a pull request
+
+#### Jumping to the App from the CLI
+
+*(v1.0.79+)* If you are working in Copilot CLI, use the `/app` command to open the current CLI session directly in the GitHub Copilot desktop app (requires GitHub Copilot app 1.1.3 or later):
+
+```
+/app
+```
+
+This lets you seamlessly hand off from a terminal session to the app's graphical interface without losing your session context.
 
 #### Important limitations
 
