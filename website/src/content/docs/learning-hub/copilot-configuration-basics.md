@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-20
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -470,6 +470,15 @@ The settings dialog supports search — type to filter settings by name. Changes
 
 These flags mirror the **Repo** and **Repo (local)** scope tabs available in the `/settings` dashboard (v1.0.71+), making it easier to manage per-repository vs. user-global configuration without ambiguity. In v1.0.71+, the `/settings` dashboard also shows **Repo** and **Repo (local)** tabs alongside the existing user-level view, giving you a unified place to see which settings are applied at each layer.
 
+*(v1.0.79+)* `/model` is now **session-scoped by default** — changing the model with `/model` affects only the current session and does not persist to future sessions. To set a default model for all future sessions, use `/config model`:
+
+```
+/model claude-sonnet-4.6    # change model for this session only
+/config model               # open the model picker and save as a persistent default
+```
+
+Use `/model --plan` (or `/model plan`) to pick a dedicated model used only while in plan mode. Pass a model ID to set it, `off` to clear, or no argument to open the picker. The plan model reverts to the session model when you leave plan mode.
+
 GitHub Copilot CLI has two commands for managing session state, with distinct behaviours:
 
 | Command | Behaviour |
@@ -514,6 +523,8 @@ The `/rewind` command opens a timeline picker that lets you roll back the conver
 ```
 
 Use `/rewind` when you want to branch off from a different point in the conversation, rather than just undoing the most recent turn.
+
+*(v1.0.78+)* `/rewind` no longer requires git — it restores only the files Copilot changed, skipping any file whose contents no longer match what Copilot last wrote. When rewinding, you can choose between reverting just the conversation or both the conversation and files.
 
 The `/undo` command reverts the last turn—including any file changes the agent made—letting you course-correct without manually undoing edits:
 
@@ -665,6 +676,20 @@ The `/usage` command displays session metrics such as the number of tokens consu
 /usage
 ```
 
+The `/limits predict` command *(v1.0.76+)* suggests a session AI-credit limit by analyzing similar past sessions, helping you set a budget before starting a long task:
+
+```
+/limits predict
+```
+
+The `/permissions` command *(v1.0.78+)* lets you switch between tool-approval modes for the current session:
+
+```
+/permissions
+```
+
+Use it to toggle between interactive approval (the agent asks before each tool call), auto-approve, or plan-only mode without restarting the session.
+
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
 ```
@@ -743,6 +768,12 @@ copilot --plan          # start in plan mode (propose without executing)
 ```
 
 This is useful in scripts or CI pipelines where you want the CLI to immediately begin working in a specific mode without an interactive prompt.
+
+*(v1.0.79+)* You can combine `--plan` with `--mode autopilot` to first produce a plan and then implement it without waiting for manual approval between phases:
+
+```bash
+copilot --plan --mode autopilot "Refactor the authentication module"
+```
 
 The `--max-autopilot-continues` flag controls how many times Copilot can automatically continue in autopilot mode before pausing for confirmation. The default is 5:
 
