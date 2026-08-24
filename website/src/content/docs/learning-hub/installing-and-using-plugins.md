@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-24
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -21,6 +21,42 @@ prerequisites:
 Plugins are installable packages that extend GitHub Copilot CLI with reusable agents, skills, hooks, and servers, all bundled into a single unit you can install with one command. Instead of manually copying agent files and configuring MCP servers across every project, plugins let you install a curated set of capabilities and share them with your team.
 
 This article explains what plugins contain, how to find and install them, and how to manage your plugin library.
+
+## The Agent Plugins Open Standard
+
+As of August 6, 2026, plugins follow the **[Agent Plugins 1.0](https://agent-plugins.org/) open standard** — a portable format supported across multiple agent clients including GitHub Copilot CLI, VS Code, and the GitHub Copilot app.
+
+### What the Standard Defines
+
+A standard-compliant plugin is a directory containing:
+
+```
+my-plugin/
+  plugin.json          # Required: manifest with name, description, version
+  skills/              # Portable skills (loaded by any compliant client)
+  mcp.json             # Portable MCP server configuration
+  com.github.copilot/  # Copilot-specific components (ignored by other clients)
+    agents/
+    hooks/
+      hooks.json
+    rules/
+```
+
+The **`com.github.copilot/` namespace** lets you ship Copilot-specific agents, hooks, and rules in the same package while keeping the top-level structure portable. Clients that don't implement this namespace simply ignore it, so one package can target VS Code, Copilot CLI, the Copilot app, and other agent clients simultaneously.
+
+### Plugin Manifest
+
+```json
+{
+  "name": "my-plugin",
+  "description": "API development toolkit",
+  "version": "1.0.0"
+}
+```
+
+The manifest is minimal by design — the standard derives the plugin's capabilities from the directory layout rather than explicit file lists.
+
+> **Note**: The `awesome-copilot` repository also supports an older Copilot-specific plugin format with `.github/plugin/plugin.json` and explicit `agents`/`skills` arrays in the manifest. Both formats are supported in Copilot CLI and VS Code.
 
 ## What's Inside a Plugin?
 
@@ -152,11 +188,14 @@ To automatically register an additional marketplace for everyone working in a re
   "extraKnownMarketplaces": [
     {
       "name": "my-org-plugins",
-      "source": "my-org/internal-plugins"
+      "source": "my-org/internal-plugins",
+      "autoUpdate": true
     }
   ]
 }
 ```
+
+With `autoUpdate: true`, plugins from that marketplace are automatically updated to the latest version at the start of every session — no manual `copilot plugin update` required. Omit the field (or set it to `false`) to stay on the installed version and update manually.
 
 With this in place, team members automatically get the `my-org-plugins` marketplace available without running a separate `marketplace add` command. This replaces the older `marketplaces` setting, which was removed in v1.0.16.
 
@@ -310,6 +349,12 @@ A: The plugin's agents, skills, and hooks are removed from Copilot, and any cach
 - **Browse Plugins**: Explore the [Plugins Directory](../../plugins/) for installable plugin packages
 - **Create Skills**: [Creating Effective Skills](../creating-effective-skills/) — Build skills that can be included in plugins
 - **Build Agents**: [Building Custom Agents](../building-custom-agents/) — Create agents to package in plugins
-- **Add Hooks**: [Automating with Hooks](../automating-with-hooks/) — Configure hooks for plugin automation
+## Further Reading
+
+- **[Agent Plugins 1.0 specification](https://agent-plugins.org/)** — the open standard for portable agent plugins across clients
+- **[VS Code Agent Plugins documentation](https://code.visualstudio.com/docs/agent-customization/agent-plugins)** — how VS Code loads Agent Plugins 1.0 packages
+- **[GitHub docs: Creating plugins](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating)** — step-by-step guide for creating and publishing plugins
+- **[Plugins Directory](../../plugins/)** — browse installable community plugins from this repository
 
 ---
+

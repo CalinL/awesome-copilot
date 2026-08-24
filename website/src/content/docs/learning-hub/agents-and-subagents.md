@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-08-24
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -108,6 +108,16 @@ Then summarize the findings into one recommendation.
 ### 4. Know the nesting rule
 
 By default, subagents do not keep spawning additional subagents. In VS Code, recursive delegation is controlled by the `chat.subagents.allowInvocationsFromSubagents` setting, which is off by default.
+
+### 5. Monitor subagent work side-by-side (VS Code 1.134+)
+
+In VS Code 1.134 and later, you can arrange subagent chats in a **grid layout** so you can watch multiple agents working simultaneously without switching between tabs:
+
+- Drag a subagent chat into a horizontal or vertical group to view it beside the main session
+- Use **Alt+select** in the Chats picker to open a subagent chat to the side
+- VS Code restores the layout and focus when you return to the session or reload the window
+
+This makes it much easier to compare results from parallel subagents — for example, reviewing a security analysis next to an implementation plan in real time.
 
 ## Launch subagents in Copilot CLI
 
