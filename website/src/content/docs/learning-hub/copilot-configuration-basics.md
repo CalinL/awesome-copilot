@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-25
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -206,6 +206,14 @@ In addition to repository-level skills, GitHub Copilot CLI supports **personal s
 ```
 
 The `~/.agents/skills/` path aligns with the VS Code GitHub Copilot for Azure extension's default skill discovery path, while `~/.copilot/skills/` matches the Copilot CLI configuration directory. Both are supported for personal skills.
+
+You can also add extra search directories at startup with the `--add-dir` flag *(v1.0.81+)*. Skills and custom agents found in those directories are discovered and loaded alongside the standard locations:
+
+```bash
+copilot --add-dir ~/my-shared-skills
+```
+
+This is useful when you have a shared skills library maintained outside your home directory or repository.
 
 ### Pinning Model and Effort via `.github/copilot/settings.json`
 
@@ -429,6 +437,8 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
 | `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
+| `defaultMode` | Default agent mode for new interactive sessions: `interactive`, `plan`, or `autopilot` (v1.0.81+) |
+| `defaultPermissionMode` | Default permission (approval) behavior for new interactive sessions (v1.0.81+) |
 
 > **Note**: Older snake_case names (e.g., `include_gitignored`, `auto_updates_channel`) are still accepted for backward compatibility, but camelCase is now the preferred format.
 
@@ -627,6 +637,8 @@ Use `/diagnose` when a session is behaving unexpectedly — it inspects session 
 
 **Keyboard shortcuts for queuing messages**: Use **Ctrl+Q** or **Ctrl+Enter** to queue a message (send it while the agent is still working). **Ctrl+D** no longer queues messages — it now has its default terminal behavior. If you have muscle memory for Ctrl+D queuing, switch to Ctrl+Q.
 
+**Voice dictation**: *(v1.0.81+)* Press **Ctrl+Space** to toggle voice dictation on or off. When active, your speech is transcribed into the prompt input, letting you dictate tasks hands-free.
+
 **Background running tasks**: Press **Ctrl+X → B** to move the current running task or shell command to the background. The task continues executing while you can type a new message or review earlier output. This is useful for long-running commands where you want to interact with the agent while waiting for the result.
 
 **Shell command history in normal mode** (v1.0.65+): The **↑/↓** arrow keys and **Ctrl+R** reverse search now include past shell commands (commands run with `!`) while you are in normal (non-shell) input mode. Previously you had to type `!` to enter shell mode before history worked. Now you can recall and re-run a shell command without switching modes first — useful for quickly repeating a build, test, or diagnostic command from earlier in the session.
@@ -664,6 +676,8 @@ The `/usage` command displays session metrics such as the number of tokens consu
 ```
 /usage
 ```
+
+When using the `--usage-output-file` flag (v1.0.81+), the output JSON now includes **per-agent usage metrics** — so when you have run delegated subagents during a session, each agent's token consumption is tracked separately, making it easier to audit complex multi-agent workflows.
 
 The `/compact` command summarizes the conversation history to free up context window space while preserving the thread of the conversation. Use it when your context is getting full but you do not want to start a fresh session:
 
@@ -723,7 +737,7 @@ The `--effort` flag (shorthand for `--reasoning-effort`) controls how much compu
 gh copilot --effort high "Refactor the authentication module"
 ```
 
-Accepted values are `low`, `medium`, and `high`. You can also set a default via the `effortLevel` config setting.
+Accepted values are `low`, `medium`, `high`, and `xhigh`. The `xhigh` level is available for supported models such as Grok 4.6, and requests the highest available reasoning intensity. You can also set a default via the `effortLevel` config setting.
 
 ### CLI Startup Flags
 
@@ -733,6 +747,14 @@ The `-C <directory>` flag changes the working directory before starting, similar
 copilot -C ~/projects/my-repo          # start in a different directory
 copilot -C ~/projects/my-repo -p "..."  # combine with prompt mode
 ```
+
+The `--with-token` flag reads an authentication token from stdin at login time *(v1.0.81+)*. This is useful in CI pipelines or scripts where you want to supply an auth token non-interactively:
+
+```bash
+echo "$MY_COPILOT_TOKEN" | copilot login --with-token
+```
+
+**Session restore**: *(v1.0.81+)* When you start the CLI and there are sessions that were still open the last time the CLI exited (for example, after a crash or machine restart), you are offered the option to restore them. This means you can pick up where you left off without manually finding and resuming each session by name.
 
 The `--mode` flag (along with its aliases `--autopilot` and `--plan`) lets you launch the CLI directly in a specific agent mode without waiting for the interactive session to start:
 
