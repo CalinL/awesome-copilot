@@ -3,7 +3,7 @@ title: 'Agents and Subagents'
 description: 'Learn how delegated subagents differ from primary agents, when to use them, and how to launch them in VS Code and Copilot CLI.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-01
+lastUpdated: 2026-08-27
 estimatedReadingTime: '9 minutes'
 tags:
   - agents
@@ -136,15 +136,21 @@ That makes `/fleet` a practical way to launch subagents even if you are not auth
 
 ### Rubber-duck agent
 
-Available in `/experimental` (v1.0.42+), the **rubber-duck agent** applies a novel multi-model pattern: when you're working in a GPT-powered session, the rubber-duck agent internally routes certain requests through Claude to provide a second perspective. The idea is similar to rubber-duck debugging — talking through a problem with a different "listener" often surfaces assumptions or blind spots you didn't notice.
+The **rubber-duck agent** applies a multi-model pattern: it gets a second opinion from a complementary model to catch missed details and edge cases — similar to rubber-duck debugging, where talking through a problem with a different "listener" surfaces assumptions or blind spots you didn't notice.
 
-In v1.0.64+, you can configure the rubber-duck agent (including its complementary model strategy) directly from `/subagents`:
+**In VS Code** (1.135+), rubber duck is available as a direct slash command:
+
+```
+/rubber-duck       # request a second-opinion review from a complementary model
+```
+
+**In Copilot CLI** (v1.0.42+), it is available via `/experimental`. In v1.0.64+, you can configure it directly from `/subagents`:
 
 ```
 /subagents          # open the subagents configuration panel
 ```
 
-Or you can still enable experimental features and select it from the agent picker:
+Or you can enable experimental features and select it from the agent picker:
 
 ```
 /experimental           # toggle experimental features
@@ -155,7 +161,7 @@ The **complementary model strategy** lets you specify that the rubber-duck agent
 
 Because it runs as a sub-agent layer rather than replacing your primary model, you keep your current session model and context while the rubber-duck analysis runs in the background.
 
-> **Note**: This is an experimental feature and may change. Provide feedback via `/feedback` if you find it useful.
+> **Note**: The VS Code `/rubber-duck` command is an experimental feature and may change. Provide feedback via VS Code's feedback channels if you find it useful.
 
 ## Orchestration patterns that work well
 

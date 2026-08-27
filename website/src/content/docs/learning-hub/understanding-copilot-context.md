@@ -3,7 +3,7 @@ title: 'Understanding Copilot Context'
 description: 'Learn how GitHub Copilot uses context from your code, workspace, and conversation to generate relevant suggestions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2025-11-28
+lastUpdated: 2026-08-27
 estimatedReadingTime: '8 minutes'
 tags:
   - context
@@ -123,6 +123,16 @@ GitHub Copilot has a maximum token limit for how much context it can process at 
 4. **Direct dependencies**: Files imported by your current file
 
 Understanding this prioritization helps you optimize which files to keep open and when to use explicit references.
+
+### Viewing per-turn token usage
+
+VS Code 1.135 adds per-turn usage details to the chat panel. For each turn you can expand a usage breakdown showing:
+
+- **Input tokens**: context sent to the model (code, conversation history, instructions)
+- **Cached input tokens**: context that was served from the model's cache (lower cost)
+- **Output tokens**: tokens generated in the response
+
+This makes it easy to see which turns are expensive, spot conversations where context has grown very large, and understand which models you are consuming tokens from in a multi-model session. Look for the usage indicator below each assistant message in the chat panel.
 
 ## Context Best Practices
 
