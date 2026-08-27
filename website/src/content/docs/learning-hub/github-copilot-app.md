@@ -3,7 +3,7 @@ title: 'Getting Started with the GitHub Copilot app'
 description: 'Learn about the GitHub Copilot app, a desktop experience built for agent-native development. Understand its key features and who it''s for.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-06-17
+lastUpdated: 2026-08-27
 estimatedReadingTime: '8 minutes'
 tags:
   - copilot-app
@@ -277,6 +277,24 @@ Enable Agent Merge to automate routine PR workflows:
 3. Create a session to implement a feature
 4. When the PR is created, Agent Merge monitors it
 5. It runs CI, waits for reviews, addresses feedback, and merges when ready
+
+## Continuing Copilot App Sessions in VS Code
+
+Starting with VS Code 1.135, you can continue agent sessions started in the Copilot app (or other external tools) directly inside VS Code. This means you no longer have to choose between surfaces — you can start a task in the Copilot app and then pick it up in VS Code when you want editor-integrated tools like inline diffs, breakpoints, or terminal access.
+
+VS Code shows recent external sessions in the Agents panel automatically. To control this behavior, use the setting:
+
+```json
+"chat.agentSessions.showExternal": true
+```
+
+When enabled, external sessions appear alongside your local VS Code sessions. Selecting one resumes the conversation in VS Code with the same context the external session had, so you can continue prompting or inspect the changes in your editor.
+
+This cross-surface continuity is useful when:
+
+- You kick off a task in the Copilot app but want to review diffs inline in VS Code
+- You start a session on one machine and want to continue in VS Code on another
+- You prefer the Copilot app for dispatching parallel work but VS Code for final review and iteration
 
 ## Next Steps
 
