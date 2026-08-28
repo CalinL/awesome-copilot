@@ -3,7 +3,7 @@ title: 'Understanding MCP Servers'
 description: 'Learn how Model Context Protocol servers extend GitHub Copilot with access to external tools, databases, and APIs.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-28
 estimatedReadingTime: '8 minutes'
 tags:
   - mcp
@@ -36,6 +36,7 @@ GitHub Copilot  ←→  MCP Server  ←→  External System
 - Servers run locally on your machine or in a container
 - Each server exposes one or more tools with defined inputs and outputs
 - Agents and users can invoke MCP tools naturally during conversation
+- GitHub Copilot CLI supports the **MCP 2026-07-28 specification** (shipped in v1.0.81), keeping it compatible with the latest servers and clients across the ecosystem
 
 ### Built-in vs MCP Tools
 
@@ -208,6 +209,7 @@ Some MCP servers require authentication to connect to protected resources. GitHu
 - **Device code flow (RFC 8628)**: When the CLI runs in a **headless or CI environment** where a browser redirect is not possible, it automatically falls back to the device code flow. You'll see a URL and a code to enter on another device to complete authentication.
 - **`/mcp auth`**: If a token expires or you need to switch accounts, run `/mcp auth` inside a session. This opens the re-authentication UI for any OAuth-enabled MCP server and supports account switching. You can re-authenticate without restarting the session.
 - **Microsoft Entra ID (Azure AD)**: MCP servers that authenticate via Microsoft Entra ID are fully supported. Once you complete the initial login, the CLI caches the authentication and **will not show the consent screen on subsequent connections** — you authenticate once per session rather than every time the server reconnects.
+- **Windows Authentication Broker (WAM)** *(v1.0.81+, Windows only)*: On Windows, remote MCP servers protected by Microsoft Entra ID can sign in through the OS authentication broker (WAM), usually with **no prompt at all**. This makes Entra-protected servers seamlessly accessible in enterprise environments. Other platforms and machines without the broker library continue to use the existing browser flow.
 - **API keys via environment variables**: Pass secrets through the `env` field in the MCP server configuration (see examples above). Never hardcode credentials in `.mcp.json`.
 - **`${input:variableName}` prompts**: VS Code will prompt for these values at runtime, keeping secrets out of committed files.
 
@@ -314,6 +316,8 @@ For example, a PostgreSQL server that can't connect because `DATABASE_URL` is no
 ```
 
 You can also open the `/mcp` manager while the agent is working to toggle servers on or off mid-turn. Add, edit, delete, and re-auth actions wait until the turn finishes, but enabling or disabling a server takes effect immediately.
+
+**Tool discovery timeout** *(v1.0.81+)*: MCP server timeout settings now apply to tool discovery as well, with a **30-second default**. This ensures that slow-starting servers have enough time to load and expose their tools before Copilot moves on, improving reliability with complex servers that take time to initialize.
 
 **Toggling servers on and off** (v1.0.66+): From the `/mcp` list view, you can **enable or disable individual MCP servers** without editing your config file. Select a server in the list and toggle it — disabled servers won't start in future sessions and their tools won't be available to agents. This is useful for temporarily disabling a server that's causing slowdowns or errors without removing it from your configuration entirely.
 
