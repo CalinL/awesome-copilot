@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-28
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -100,6 +100,18 @@ Plugins are collected in **marketplaces** — registries you can browse and inst
 - **`copilot-plugins`** — Official GitHub Copilot plugins
 - **`awesome-copilot`** — Community-contributed plugins from this repository
 
+### The Plugins Dashboard
+
+*(v1.0.81+)* Running `/plugin`, `/mcp`, or `/skills` in an interactive Copilot session opens the **Plugins Dashboard** — a unified interface for browsing installed plugins, managing MCP servers, and exploring available skills. This dashboard is the recommended way to explore and manage your plugin ecosystem.
+
+From the dashboard you can:
+- See all installed plugins and their components
+- Browse available marketplace plugins
+- Enable or disable individual MCP servers
+- Update plugins that have newer versions available upstream
+
+> **Tip**: `/plugin` now automatically flags installed plugins that have a newer version available upstream and offers an **Update** action to pull it.
+
 ### Browsing in Copilot CLI
 
 List your registered marketplaces:
@@ -114,7 +126,13 @@ Browse plugins in a specific marketplace:
 copilot plugin marketplace browse awesome-copilot
 ```
 
-Or from within an interactive Copilot session:
+Or from within an interactive Copilot session (opens the Plugins Dashboard):
+
+```
+/plugin
+```
+
+To browse a specific marketplace:
 
 ```
 /plugin marketplace browse awesome-copilot
@@ -241,12 +259,14 @@ Plugins loaded this way appear in `/plugin list` under a separate **External Plu
 
 When you install a plugin, its components become available to Copilot CLI automatically:
 
-- **Agents** appear in your agent selection (use with `/agent` or the agents dropdown)
-- **Skills** are loaded automatically when relevant to your current task
+- **Agents** appear in your agent selection (use `/subagents` to browse and select agents from installed plugins)
+- **Skills** are loaded automatically when relevant to your current task (browse with `/skills`)
 - **Hooks** run at the configured lifecycle events during agent sessions
-- **MCP servers** extend the tools available to agents
+- **MCP servers** extend the tools available to agents (manage with `/mcp`)
 
 You don't need to do any additional configuration after installing — the plugin's components integrate seamlessly into your workflow. Plugins take effect immediately after installation without requiring a Copilot CLI restart.
+
+> **Tip**: Use `/instructions` to view all active instruction files (including those contributed by plugins) in your current session.
 
 ## Plugins from This Repository
 
