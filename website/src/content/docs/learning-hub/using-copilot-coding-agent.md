@@ -3,7 +3,7 @@ title: 'Using the Copilot Coding Agent'
 description: 'Learn how to use GitHub Copilot coding agent to autonomously work on issues, generate pull requests, and automate development tasks.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-05-13
+lastUpdated: 2026-08-29
 estimatedReadingTime: '12 minutes'
 tags:
   - coding-agent
@@ -355,6 +355,22 @@ Or open a remote control tab from inside an existing session, and check or toggl
 ```
 
 The **Remote** tab in the CLI shows all active coding agent tasks from the repository. Select a task to connect and begin sending steering messages.
+
+### Opening a CLI Session in the Copilot App
+
+If you have the GitHub Copilot app installed, you can jump from your current CLI session into the app with the `/app` slash command:
+
+```
+/app
+```
+
+This opens (or focuses) the Copilot app on the session you're currently in, letting you switch from a terminal-based workflow to the app's graphical interface for monitoring, reviewing diffs, or managing parallel worktrees — without losing your session context.
+
+You can also open the app directly from the terminal using the `copilot app` CLI command:
+
+```bash
+copilot app
+```
 
 ### Resuming from the Session Picker
 
