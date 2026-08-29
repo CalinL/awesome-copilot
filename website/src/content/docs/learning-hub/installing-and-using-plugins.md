@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-29
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -221,6 +221,38 @@ copilot plugin marketplace update
 # Remove a plugin
 copilot plugin uninstall my-plugin
 ```
+
+### Plugins Dashboard
+
+The **Plugins Dashboard** is the interactive hub for browsing and managing all your plugins, MCP servers, and skills. Open it from within an interactive session with any of these slash commands:
+
+```
+/plugin    — open the plugins dashboard
+/mcp       — open the MCP servers section
+/skills    — open the skills section
+```
+
+From the dashboard you can install, update, enable, disable, and remove plugins without leaving your Copilot session. When a plugin or marketplace has a newer version available upstream, `/plugin` flags it and offers an **Update** action inline.
+
+### Automatic Updates
+
+**First-party plugins** (from the official `copilot-plugins` marketplace) update automatically at each session start — no manual action needed.
+
+For **community and third-party marketplaces**, you can opt in to automatic updates per marketplace by adding `"autoUpdate": true` to the entry in your user settings:
+
+```json
+{
+  "extraKnownMarketplaces": [
+    {
+      "name": "my-org-plugins",
+      "source": "my-org/internal-plugins",
+      "autoUpdate": true
+    }
+  ]
+}
+```
+
+With `autoUpdate` enabled, plugin catalogs from that marketplace are refreshed every time a new session starts.
 
 ### Loading Plugins from a Local Directory
 
