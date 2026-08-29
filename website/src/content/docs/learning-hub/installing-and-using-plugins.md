@@ -3,7 +3,7 @@ title: 'Installing and Using Plugins'
 description: 'Learn how to find, install, and manage plugins that extend GitHub Copilot CLI with reusable agents, skills, hooks, and integrations.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-29
 estimatedReadingTime: '8 minutes'
 tags:
   - plugins
@@ -21,6 +21,23 @@ prerequisites:
 Plugins are installable packages that extend GitHub Copilot CLI with reusable agents, skills, hooks, and servers, all bundled into a single unit you can install with one command. Instead of manually copying agent files and configuring MCP servers across every project, plugins let you install a curated set of capabilities and share them with your team.
 
 This article explains what plugins contain, how to find and install them, and how to manage your plugin library.
+
+## The Plugins Dashboard
+
+The **plugins dashboard** gives you a unified view of all your installed agents, skills, and MCP servers. Open it from an interactive Copilot CLI session with any of these commands:
+
+```
+/plugin     # open the plugins dashboard
+/mcp        # open the plugins dashboard, focused on MCP servers
+/skills     # open the plugins dashboard, focused on skills
+```
+
+The dashboard lets you:
+- Browse all installed agents, skills, and MCP servers across your plugins
+- See which plugins have a **newer version available** upstream and update them with a single action
+- Enable, disable, or reconfigure individual components
+
+> **Note**: The older `/plugins` command has been removed. Use `/plugin`, `/mcp`, and `/skills` instead.
 
 ## What's Inside a Plugin?
 

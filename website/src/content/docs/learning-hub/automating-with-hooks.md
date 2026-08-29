@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-29
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -608,9 +608,31 @@ You can also reference these paths as template variables in your hook configurat
 
 This is useful for plugins that bundle scripts or data files alongside their hooks, since `{{plugin_data_dir}}` always points to the correct installed location regardless of where the plugin is installed.
 
-## Writing Hook Scripts
+### OpenTelemetry Trace Context in Hooks (v1.0.81+)
 
-For complex logic, use bundled scripts instead of inline bash commands:
+Hooks can now receive the current **OpenTelemetry trace context** and emit correlated spans, making it possible to integrate Copilot CLI sessions into distributed tracing systems (Jaeger, Honeycomb, Datadog, etc.).
+
+When a hook fires, two additional fields are included in its JSON input:
+
+| Field | Description |
+|-------|-------------|
+| `traceparent` | The W3C `traceparent` header value for the current trace (e.g., `00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01`) |
+| `tracestate` | The W3C `tracestate` header value when vendor-specific span state is present (empty string otherwise) |
+
+Command hooks also receive `TRACEPARENT` and `TRACESTATE` as environment variables, so you can forward them to child processes without parsing JSON:
+
+```bash
+#!/usr/bin/env bash
+# Forward Copilot's trace context to your telemetry service
+curl -s -X POST https://telemetry.example.com/spans \
+  -H "Content-Type: application/json" \
+  -H "traceparent: $TRACEPARENT" \
+  -d "{\"event\": \"postToolUse\", \"tool\": \"$(cat | jq -r .tool_name)\"}"
+```
+
+This enables end-to-end tracing across your CI pipelines, governance scripts, and Copilot agent sessions from a single trace ID.
+
+## Writing Hook Scripts
 
 ```bash
 #!/usr/bin/env bash
