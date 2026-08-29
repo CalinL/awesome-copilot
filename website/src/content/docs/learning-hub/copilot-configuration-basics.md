@@ -3,7 +3,7 @@ title: 'Copilot Configuration Basics'
 description: 'Learn how to configure GitHub Copilot at user, workspace, and repository levels to optimize your AI-assisted development experience.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-29
 estimatedReadingTime: '10 minutes'
 tags:
   - configuration
@@ -206,6 +206,14 @@ In addition to repository-level skills, GitHub Copilot CLI supports **personal s
 ```
 
 The `~/.agents/skills/` path aligns with the VS Code GitHub Copilot for Azure extension's default skill discovery path, while `~/.copilot/skills/` matches the Copilot CLI configuration directory. Both are supported for personal skills.
+
+You can also load agents and skills from any arbitrary directory using the `--add-dir` flag at startup (v1.0.81+):
+
+```bash
+copilot --add-dir /path/to/my-shared-agents
+```
+
+Skills and custom agents found in that directory are discovered and made available for the session, without needing to copy files into a standard config location. This is useful for shared network drives, monorepos, or testing agents during development.
 
 ### Pinning Model and Effort via `.github/copilot/settings.json`
 
@@ -426,6 +434,8 @@ CLI settings use **camelCase** naming. Key settings added in recent releases:
 | `include_gitignored` | Include gitignored files in `@` file search |
 | `extension_mode` | Control extensibility (agent tools and plugins) |
 | `continueOnAutoMode` | Automatically switch to the auto model on rate limit instead of pausing |
+| `defaultMode` | Default agent mode for new interactive sessions (`interactive`, `autopilot`, `plan`) (v1.0.81+) |
+| `defaultPermissionMode` | Default tool-approval behavior for new interactive sessions (v1.0.81+) |
 | `proxy` | HTTP(S) proxy URL for all outbound CLI requests (e.g., `http://proxy.example.com:8080`) (v1.0.64+) |
 | `sessionLimits` | Restrict credit or turn usage for a session; limits apply across the current conversation and reset on `/clear` (v1.0.66+) |
 | `stayInAutopilot` | Keep the CLI in autopilot mode after an autopilot task completes, instead of returning to interactive mode (v1.0.69+) |
@@ -447,7 +457,13 @@ The model picker opens in a **full-screen view** with inline reasoning effort ad
 
 **Auto mode and server-side model routing** (v1.0.43+): When you select **Auto** as your model, the CLI uses server-side model routing for real-time model selection. Instead of locking in a single model at session start, Auto mode evaluates each request and routes it to the most appropriate model dynamically. This means straightforward questions can be handled by a faster model while complex reasoning tasks are automatically escalated — without you needing to switch models manually.
 
+**Auto mode adapts to your task (v1.0.81+)**: Auto mode now evolves model selection as your task changes during a conversation — not just per-request, but informed by how the conversation has developed. This means the model used for a complex refactor that evolved from an initial question will be chosen based on the full task context.
+
 **Model family aliases** (v1.0.64+): Instead of typing a full model name, you can use short family aliases in the model setting: `opus`, `sonnet`, `haiku` (Anthropic), and `gpt`, `gemini` (Google/OpenAI). The CLI resolves the alias to the latest available model in that family. This is especially useful in scripts or configuration files where you want to track the best model in a family without hardcoding a version string.
+
+### Voice Dictation (v1.0.81+)
+
+Press **Ctrl+Space** to toggle voice dictation in the Copilot CLI. This lets you speak your prompts instead of typing them — useful for long, free-form instructions or when your hands are occupied. Press Ctrl+Space again to stop recording and send the transcribed text as your prompt.
 
 ### CLI Session Commands
 
@@ -494,6 +510,8 @@ You can also name a session at startup with the `--name` flag, and resume it by 
 copilot --name "auth-refactor"          # start a session with a given name
 copilot --resume="auth-refactor"        # resume that session by name
 ```
+
+**Session restore after crash or restart (v1.0.81+)**: If a CLI session was still open when the terminal exited unexpectedly (e.g., a crash or machine restart), the CLI now offers to restore those sessions at the next startup — no need to reopen each terminal by hand.
 
 The `/session delete` command removes sessions you no longer need:
 
