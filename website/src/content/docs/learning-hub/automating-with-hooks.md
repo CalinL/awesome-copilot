@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-08-30
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -147,6 +147,25 @@ When multiple IDE extensions (or a mix of extensions and a `hooks.json` file) ea
 ### Cross-Platform Event Name Compatibility
 
 Hook event names can be written in **camelCase** (e.g., `preToolUse`) or **PascalCase** (e.g., `PreToolUse`). Both are accepted, making hook configuration files compatible across GitHub Copilot CLI, VS Code, and Claude Code without modification. Hooks also support Claude Code's nested `matcher`/`hooks` structure alongside the standard flat format.
+
+### OpenTelemetry Trace Context (v1.0.81+)
+
+Hooks can now participate in distributed tracing. When a hook fires, the JSON input includes a `traceparent` field (and `tracestate` when the active span has vendor state) carrying the current OpenTelemetry trace context. Command hooks also receive these values as environment variables (`TRACEPARENT`, `TRACESTATE`).
+
+This lets your hook scripts emit correlated spans back to your own observability backend, linking hook executions to the agent session trace that triggered them:
+
+```bash
+#!/usr/bin/env bash
+# scripts/traced-hook.sh
+# Forward hook events to an observability backend with the active trace context
+INPUT=$(cat)
+curl -s -X POST "https://otel-collector.example.com/hooks" \
+  -H "Content-Type: application/json" \
+  -H "traceparent: ${TRACEPARENT}" \
+  -d "$INPUT"
+```
+
+> **Note**: If your environment does not use distributed tracing, you can safely ignore `traceparent` and `tracestate`. They are always present in hook inputs from v1.0.81+ but do not affect hook behavior if unused.
 
 ### Plugin Hooks Environment Variables
 
