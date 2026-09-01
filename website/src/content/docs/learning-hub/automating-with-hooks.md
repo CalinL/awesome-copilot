@@ -3,7 +3,7 @@ title: 'Automating with Hooks'
 description: 'Learn how to use hooks to automate lifecycle events like formatting, linting, and governance checks during Copilot agent sessions.'
 authors:
   - GitHub Copilot Learning Hub Team
-lastUpdated: 2026-07-13
+lastUpdated: 2026-09-01
 estimatedReadingTime: '8 minutes'
 tags:
   - hooks
@@ -607,6 +607,36 @@ You can also reference these paths as template variables in your hook configurat
 ```
 
 This is useful for plugins that bundle scripts or data files alongside their hooks, since `{{plugin_data_dir}}` always points to the correct installed location regardless of where the plugin is installed.
+
+### OpenTelemetry Trace Context in Hooks (v1.0.81+)
+
+Hooks can participate in distributed tracing by receiving the current **OpenTelemetry trace context** from the Copilot session. This lets your hook scripts emit correlated telemetry spans that are linked to the agent session's trace tree.
+
+**What hooks receive:**
+
+All hook inputs gain a `traceparent` field (and optionally `tracestate` when vendor-specific trace state is present). Command hooks also receive these as environment variables:
+
+| Input Field / Env Var | Description |
+|-----------------------|-------------|
+| `traceparent` | W3C Trace Context header value linking your span to the session trace |
+| `tracestate` | Optional vendor-specific state, included when present |
+
+**Example: emitting a correlated span from a hook**
+
+```bash
+#!/usr/bin/env bash
+# Emit a trace span correlated with the Copilot session
+TRACE_PARENT="${traceparent}"
+
+# Use the traceparent with your observability tool, e.g. OpenTelemetry CLI
+otel-cli span --name "hook:postToolUse" \
+  --traceparent "${TRACE_PARENT}" \
+  --attrs "hook.event=postToolUse"
+```
+
+Hook lifecycle events (`hook.start` / `hook.end`) from hooks running inside a **subagent** are recorded on that subagent's session and re-emitted on its parent — so the full call tree is visible in your trace without any extra configuration.
+
+This feature is particularly useful for teams that already use distributed tracing for CI, deployments, or service monitoring and want agent activity to appear as correlated spans in the same trace backend.
 
 ## Writing Hook Scripts
 
